@@ -1,7 +1,7 @@
 # 🎤 Speech Emotion Recognition Challenge
-### CSE 5526: Introduction to Neural Networks — Spring 2026
+### CSE 5526: Introduction to Neural Networks — Autumn 2026
 
-> **Due: Monday, May 04, 2026 at 11:59 a.m.**  
+> **Due: TBD**  
 > **Team size: 2–3 students**  
 > **Submit to:** your team's private GitHub repository
 
