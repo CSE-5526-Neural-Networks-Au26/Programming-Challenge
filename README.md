@@ -227,8 +227,8 @@ Your presentation should consist of the following:
 
 | Component | Points |
 |-----------|--------|
-| Public test performance | 40 |
-| Hidden test performance (weighted F1 vs. baseline) | 30 |
+| Public test performance (weighted F1) | 40 |
+| Hidden test performance (relative improvement) | 30 |
 | Recorded presentation | 25 |
 | Code quality (readability, comments, efficiency) | 5 |
 | **Total** | **100** |
@@ -241,11 +241,11 @@ Points are awarded based on weighted F1 achieved on the public test set.
 | Performance | Points |
 |-------------|--------|
 | At or below baseline (≤ 0.4276) | 0 |
-| Beats baseline | 15 |
-| F1 ≥ 0.50 | 20 |
-| F1 ≥ 0.55 | 25 |
-| F1 ≥ 0.60 | 30 |
-| F1 ≥ 0.65 | 35 |
+| Beats baseline | 20 |
+| F1 ≥ 0.50 | 25 |
+| F1 ≥ 0.55 | 30 |
+| F1 ≥ 0.60 | 35 |
+| F1 ≥ 0.65 | 38 |
 | F1 ≥ 0.70 | 40 |
 
 > The public test labels are provided. Submit your `<team_name>.csv` to the leaderboard to see your score.
@@ -256,14 +256,17 @@ Points are awarded based on relative improvement over the baseline score on the 
 
 | Improvement over baseline | Points |
 |---------------------------|--------|
-| At or below baseline | 0 |
-| Beats baseline | 15 |
-| +5% | 17 |
-| +10% | 19 |
-| +15% | 22 |
-| +20% | 25 |
-| +25% | 28 |
-| +30% | 30 |
+| < −15% | 0 |
+| −15% to −8% | 4 |
+| −8% to −4% | 8 |
+| −4% to 0% | 12 |
+| At baseline | 15 |
+| 0% to +5% | 17 |
+| +5% to +10% | 19 |
+| +10% to +15% | 22 |
+| +15% to +20% | 25 |
+| +20% to +25% | 28 |
+| +25% to +30% | 30 |
 
 > Improvement is computed as: (team F1 − baseline F1) / baseline F1 × 100.
 
