@@ -1,0 +1,13 @@
+name = "ser-leaderboard-submit"
+main = "worker.js"
+compatibility_date = "2025-03-01"
+
+# Non-secret config. Edit if your org/repo or Pages origin differ.
+[vars]
+REPO_OWNER     = "CSE-5526-Neural-Networks-Au26"
+REPO_NAME      = "Programming-Challenge"
+ALLOWED_ORIGIN = "https://cse-5526-neural-networks-au26.github.io"
+
+# Secrets are NOT stored here. Set them from the CLI:
+#   wrangler secret put GITHUB_TOKEN     <- fine-grained token, this repo only, Contents: Read & write
+#   wrangler secret put SUBMIT_CODE      <- (optional) a class/team code to require

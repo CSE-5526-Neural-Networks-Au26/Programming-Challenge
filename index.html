@@ -37,6 +37,7 @@
   }
 
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased}
   body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--accent);z-index:30}
   a{color:var(--accent-ink);text-decoration:none}
@@ -161,6 +162,13 @@
   .btn-primary:hover{text-decoration:none;filter:brightness(1.06)}
   .btn-primary.disabled{background:var(--surface-2);color:var(--muted);pointer-events:none}
   .submit-hint{font-size:13px;color:var(--muted);min-width:0}
+  .code-row{display:flex;flex-direction:column;gap:6px;max-width:320px}
+  .code-row label{font-size:12px;font-weight:600;color:var(--muted)}
+  .code-row input{background:var(--surface);border:1px solid var(--border);color:var(--fg);border-radius:9px;padding:9px 12px;font:inherit;font-size:14px}
+  .submit-msg{font-size:13.5px;border-radius:10px;padding:11px 14px}
+  .submit-msg.ok{background:var(--pos-weak);color:var(--pos);border:1px solid color-mix(in srgb,var(--pos) 34%,transparent)}
+  .submit-msg.err{background:var(--accent-weak);color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+  .spin-sm{width:14px;height:14px;border-width:2px;border-top-color:#fff;margin:0 7px 0 0;vertical-align:-2px;display:inline-block}
 
   .grade-row{display:flex;justify-content:space-between;gap:14px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--border)}
   .grade-row:last-child{border-bottom:0}
@@ -313,13 +321,18 @@
         <ul class="checklist" id="vChecks"></ul>
       </div>
 
+      <div id="codeRow" class="code-row" hidden>
+        <label for="codeInput">Team code</label>
+        <input id="codeInput" type="text" autocomplete="off" spellcheck="false" placeholder="code from your instructor">
+      </div>
       <div class="submit-actions">
-        <a id="commitBtn" class="btn-primary disabled" aria-disabled="true" rel="noopener">Commit on GitHub →</a>
+        <button id="commitBtn" class="btn-primary disabled" type="button" disabled>Submit to leaderboard</button>
         <span class="submit-hint" id="submitHint">Select a file to validate it first.</span>
       </div>
+      <div id="submitMsg" class="submit-msg" hidden></div>
     </div>
 
-    <p class="lb-foot" style="margin-top:14px">On GitHub, drop the same file and commit it. If you don't have write access, GitHub offers to fork and open a pull request. Either way, the Action scores it and this page updates within a minute or two.</p>
+    <p class="lb-foot" style="margin-top:14px">Your file is sent straight to the leaderboard — no GitHub account or repo access needed. Scoring reruns automatically and your row appears within a minute or two.</p>
 
     <div class="warnbox"><span class="ico">!</span><div>This is the exact format <span class="inlinecode">test.py</span> must produce on the hidden set after the deadline — a file that fails these checks, or a script that crashes, scores zero on the hidden-test component. Fix any issue here first.</div></div>
   </section>
@@ -479,13 +492,22 @@
     .catch(()=>{ state.hidden=false; table.hidden=true;
       state.innerHTML='Could not load <span class="inlinecode">leaderboard.json</span> yet. Once it is published next to this page, standings appear here automatically.'; });
 
-  /* ---- in-page submission: validate CSV, then hand off to GitHub ------ */
+  /* ---- in-page submission: validate locally, then submit via the Worker -- */
+  // Paste your deployed Cloudflare Worker URL here (must end in /submit):
+  const SUBMIT_ENDPOINT = "https://REPLACE_ME.workers.dev/submit";
+  // Set true only if your Worker enforces a class/team code (SUBMIT_CODE):
+  const REQUIRE_CODE = false;
+
   const VALID=new Set(["anger","disgust","fear","happy","neutral","sad"]);
-  const UPLOAD_URL=LINKS.challenge.replace(/\/+$/,"")+"/upload/main/submissions";
   const dz=document.getElementById("dz"), csvInput=document.getElementById("csvInput"),
         vResult=document.getElementById("vResult"), vChecks=document.getElementById("vChecks"),
         vName=document.getElementById("vName"), commitBtn=document.getElementById("commitBtn"),
-        submitHint=document.getElementById("submitHint"), dzMain=document.getElementById("dzMain");
+        submitHint=document.getElementById("submitHint"), dzMain=document.getElementById("dzMain"),
+        submitMsg=document.getElementById("submitMsg"), codeRow=document.getElementById("codeRow"),
+        codeInput=document.getElementById("codeInput");
+  if(REQUIRE_CODE) codeRow.hidden=false;
+
+  let curCSV=null, curTeam="", curValid=false;
 
   ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("drag");}));
   ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("drag");}));
@@ -494,10 +516,14 @@
 
   function mark(k){return `<span class="mk">${k==="ok"?"✓":k==="warn"?"!":"✕"}</span>`;}
   function addCheck(kind,text){const li=document.createElement("li");li.className=kind;li.innerHTML=mark(kind)+`<span>${text}</span>`;vChecks.appendChild(li);}
-  function lock(hint){commitBtn.classList.add("disabled");commitBtn.setAttribute("aria-disabled","true");commitBtn.removeAttribute("href");submitHint.textContent=hint;}
-  function unlock(){commitBtn.classList.remove("disabled");commitBtn.setAttribute("aria-disabled","false");commitBtn.href=UPLOAD_URL;commitBtn.target="_blank";submitHint.textContent="Looks good — commit on GitHub, then drop this same file there.";}
+  function setMsg(kind,html){submitMsg.hidden=false;submitMsg.className="submit-msg "+kind;submitMsg.innerHTML=html;}
+  function clearMsg(){submitMsg.hidden=true;submitMsg.innerHTML="";}
+  function lock(hint){curValid=false;commitBtn.classList.add("disabled");commitBtn.disabled=true;submitHint.textContent=hint;}
+  function unlock(){curValid=true;commitBtn.classList.remove("disabled");commitBtn.disabled=false;submitHint.textContent="Ready — submit it to the leaderboard.";}
 
   function handleFile(file){
+    clearMsg();
+    commitBtn.textContent="Submit to leaderboard";
     dzMain.innerHTML=`Selected <b>${file.name.replace(/[<>]/g,"")}</b>`;
     const reader=new FileReader();
     reader.onload=()=>validate(file,String(reader.result));
@@ -506,8 +532,9 @@
   }
 
   function validate(file,text){
-    vResult.hidden=false; vChecks.innerHTML="";
+    vResult.hidden=false; vChecks.innerHTML=""; curCSV=text;
     const team=file.name.replace(/\.csv$/i,"").replace(/_/g," ").trim();
+    curTeam=team;
     vName.innerHTML=team?`Leaderboard name: <b>${team.replace(/[<>]/g,"")}</b>`:"";
     let fatal=false;
 
@@ -539,4 +566,28 @@
 
     fatal ? lock("Fix the issue(s) above, then re-select the file.") : unlock();
   }
+
+  commitBtn.addEventListener("click",async()=>{
+    if(!curValid) return;
+    if(SUBMIT_ENDPOINT.includes("REPLACE_ME")){ setMsg("err","Submissions aren't open yet — the instructor is finishing setup."); return; }
+    if(REQUIRE_CODE && !codeInput.value.trim()){ setMsg("err","Enter your team code to submit."); return; }
+    clearMsg();
+    commitBtn.disabled=true;
+    commitBtn.innerHTML='<span class="spin spin-sm"></span>Submitting…';
+    try{
+      const res=await fetch(SUBMIT_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({team:curTeam,csv:curCSV,code:codeInput?codeInput.value.trim():""})});
+      const data=await res.json().catch(()=>({}));
+      if(res.ok && data.ok){
+        setMsg("ok",`Submitted <b>${String(data.team||curTeam).replace(/[<>]/g,"")}</b> (${Number(data.rows||0).toLocaleString()} rows). The leaderboard updates in a minute or two.`);
+        commitBtn.textContent="Submitted ✓"; curValid=false;
+      }else{
+        setMsg("err",String(data.error||`Submission failed (${res.status}).`).replace(/[<>]/g,""));
+        commitBtn.textContent="Submit to leaderboard"; commitBtn.disabled=false;
+      }
+    }catch(err){
+      setMsg("err","Could not reach the submission service. Check your connection and try again.");
+      commitBtn.textContent="Submit to leaderboard"; commitBtn.disabled=false;
+    }
+  });
 </script>
