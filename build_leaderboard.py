@@ -26,7 +26,6 @@ from sklearn.metrics import f1_score
 
 
 SUBMISSIONS_DIR = Path("submissions")
-MARKDOWN_OUT    = Path("LEADERBOARD.md")
 JSON_OUT        = Path("leaderboard.json")
 EMOTIONS        = ["anger", "disgust", "fear", "happy", "neutral", "sad"]
 EMOTION_TO_IDX  = {e: i for i, e in enumerate(EMOTIONS)}
@@ -183,9 +182,6 @@ def main():
         "teams":        ranked,
     }, indent=2))
     print(f"Leaderboard JSON written to {JSON_OUT}")
-
-    MARKDOWN_OUT.write_text(build_markdown(ranked, baseline_f1, generated_at))
-    print(f"Leaderboard markdown written to {MARKDOWN_OUT}")
 
 
 if __name__ == "__main__":

@@ -129,6 +129,9 @@
   .deflist dd{margin:0;font-family:var(--mono);font-size:13px}
   ul.clean{margin:0;padding-left:20px}
   ul.clean li{margin:5px 0}
+  .sub{font-family:var(--display);font-size:15px;font-weight:700;margin:24px 0 8px}
+  .tbl{overflow-x:auto}
+  table.data th.n{text-align:right}
 
   table.data{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px}
   table.data th,table.data td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
@@ -196,6 +199,7 @@
       <a href="#leaderboard">Leaderboard</a>
       <a href="#task" class="hideable">Task</a>
       <a href="#dataset" class="hideable">Dataset</a>
+      <a href="#getting-started" class="hideable">Setup</a>
       <a href="#submit" class="hideable">Submit</a>
       <a href="#grading" class="hideable">Grading</a>
       <button class="tbtn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">◐</button>
@@ -305,8 +309,38 @@
     </div>
   </section>
 
+  <section id="getting-started">
+    <h2><span class="num">05</span> Getting Started</h2>
+    <p class="lead-max">Python and PyTorch only. You're encouraged to run experiments on <b>OSC</b> (Ohio Supercomputer Center) to avoid local compute delays — reach out anytime with setup questions.</p>
+    <div class="grid2">
+      <div class="card"><h3>1 · Install</h3>
+        <pre class="code">pip install torch torchaudio scikit-learn pandas matplotlib wandb tqdm</pre></div>
+      <div class="card"><h3>2 · Data layout</h3>
+        <pre class="code">dataset/
+  train/  audio/  train_labels.csv
+  test/   audio/  test_labels.csv</pre></div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3>3 · Train the baseline</h3>
+      <pre class="code">python train.py --data_dir dataset --results_dir results \
+                --team_name baseline --run_name baseline_train</pre>
+      <p style="margin:10px 0 0;font-size:13.5px;color:var(--muted)">Splits train/validation 85/15, trains up to 100 epochs with early stopping, writes <span class="inlinecode">best_model.pt</span>, <span class="inlinecode">norm_stats.pt</span>, <span class="inlinecode">checkpoint.pt</span> and <span class="inlinecode">loss_curve.png</span> to <span class="inlinecode">results/&lt;team&gt;/</span>, and logs to Weights &amp; Biases. Re-running the command resumes from the checkpoint.</p></div>
+    <div class="card" style="margin-top:16px"><h3>4 · Evaluate &amp; make your CSV</h3>
+      <pre class="code">python test.py --test_dir dataset/test --results_dir results \
+               --team_name baseline --run_name baseline_test</pre>
+      <p style="margin:10px 0 0;font-size:13.5px;color:var(--muted)">Prints weighted and per-class F1, logs a confusion matrix, and writes your <span class="inlinecode">&lt;team&gt;.csv</span> of predictions.</p></div>
+    <h3 class="sub">Baseline repo files</h3>
+    <div class="tbl"><table class="data"><tbody>
+      <tr><td><span class="inlinecode">dataloader.py</span></td><td>Loads audio, computes Mel-spectrograms, returns DataLoaders</td></tr>
+      <tr><td><span class="inlinecode">baseline.py</span></td><td>Baseline LSTM model</td></tr>
+      <tr><td><span class="inlinecode">train.py</span></td><td>Training loop — early stopping, wandb logging, checkpointing</td></tr>
+      <tr><td><span class="inlinecode">test.py</span></td><td>Evaluates a saved model, writes the submission CSV</td></tr>
+      <tr><td><span class="inlinecode">results/baseline/</span></td><td>best_model.pt, norm_stats.pt, loss_curve.png, baseline.csv</td></tr>
+    </tbody></table></div>
+    <p class="lb-foot" style="margin-top:10px">You may modify any provided file or add new ones.</p>
+  </section>
+
   <section id="submit">
-    <h2><span class="num">05</span> Submit to the Leaderboard</h2>
+    <h2><span class="num">06</span> Submit to the Leaderboard</h2>
     <p class="lead-max">Choose your predictions CSV below. The page checks the format instantly — the same format we grade on — then hands off to GitHub to commit it into <span class="inlinecode">submissions/</span>. Scoring runs server-side against the public test labels; no self-reported numbers.</p>
 
     <div class="card submit-card">
@@ -340,35 +374,172 @@
     <div class="warnbox"><span class="ico">!</span><div>This is the exact format <span class="inlinecode">test.py</span> must produce on the hidden set after the deadline — a file that fails these checks, or a script that crashes, scores zero on the hidden-test component. Fix any issue here first.</div></div>
   </section>
 
+  <section id="presentation">
+    <h2><span class="num">07</span> Deliverables &amp; Presentation</h2>
+    <p class="lead-max">Besides the leaderboard, commit these to your team's private GitHub repository before the deadline:</p>
+    <div class="tbl"><table class="data">
+      <thead><tr><th>File</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><span class="inlinecode">dataloader.py</span></td><td>Your data loading pipeline</td></tr>
+        <tr><td><span class="inlinecode">model.py</span></td><td>Model definition(s)</td></tr>
+        <tr><td><span class="inlinecode">train.py</span></td><td>Training pipeline → <span class="inlinecode">best_model.pt</span> in <span class="inlinecode">results/&lt;team&gt;/</span></td></tr>
+        <tr><td><span class="inlinecode">best_model.pt</span></td><td>Your best trained weights</td></tr>
+        <tr><td><span class="inlinecode">test.py</span></td><td>Loads <span class="inlinecode">best_model.pt</span>, generates <span class="inlinecode">&lt;team&gt;.csv</span></td></tr>
+        <tr><td><span class="inlinecode">&lt;team&gt;.csv</span></td><td>Predicted labels from <span class="inlinecode">test.py</span></td></tr>
+        <tr><td><span class="inlinecode">README.md</span></td><td>How to run <span class="inlinecode">test.py</span></td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="sub">Recorded presentation</h3>
+    <p class="lead-max">Record a <b>15–20 minute</b> presentation on your approach, experiments, and results using <b>CarmenZoom</b>. Every team member must present. Share the recording link with the instructor via MS Teams by the deadline, and upload <span class="inlinecode">slides.pdf</span> to Canvas — one submission per group.</p>
+    <ol class="steps">
+      <li>A brief introduction — the problem, why it matters, and your motivation.</li>
+      <li>Your approach and how it differs from the baseline — features, architecture, layers, cost function, optimisation, regularisation.</li>
+      <li>Experiments and setup — dataset, parameter settings, evaluation measures.</li>
+      <li>Results — tables and figures, with discussion of key findings.</li>
+      <li>Challenges, how your final approach differed from the initial one, and future work.</li>
+    </ol>
+  </section>
+
   <section id="grading">
-    <h2><span class="num">06</span> Grading</h2>
-    <p class="lead-max">100 points across four components, plus up to 10 bonus. Full rubric tables are in the assignment PDF — this is the summary.</p>
-    <div class="grade-row"><div>Public test performance<small>Weighted F1 on the public set, tiered from “beats baseline” up to F1 ≥ 0.70.</small></div><span class="pts">40</span></div>
-    <div class="grade-row"><div>Hidden test performance<small>Relative improvement over the baseline on the withheld set, scored after the deadline.</small></div><span class="pts">30</span></div>
-    <div class="grade-row"><div>Recorded presentation<small>15–20 min; every team member must speak.</small></div><span class="pts">25</span></div>
-    <div class="grade-row"><div>Code quality<small>Readability, comments, structure.</small></div><span class="pts">5</span></div>
-    <div class="grade-row"><div>Leaderboard bonus<small>Extra points by final hidden-test rank among teams that beat the baseline.</small></div><span class="pts">+10</span></div>
+    <h2><span class="num">08</span> Grading</h2>
+    <p class="lead-max">100 points across four components, plus up to 10 bonus points.</p>
+    <div class="tbl"><table class="data">
+      <thead><tr><th>Component</th><th class="n">Points</th></tr></thead>
+      <tbody>
+        <tr><td>Public test performance (weighted F1)</td><td class="n">40</td></tr>
+        <tr><td>Hidden test performance (relative improvement)</td><td class="n">30</td></tr>
+        <tr><td>Recorded presentation</td><td class="n">25</td></tr>
+        <tr><td>Code quality (readability, comments, efficiency)</td><td class="n">5</td></tr>
+        <tr><td><b>Total</b></td><td class="n"><b>100</b></td></tr>
+        <tr><td>Bonus</td><td class="n">up to 10</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 class="sub">Public test performance</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:0 0 6px">Weighted F1 on the public test set.</p>
+    <div class="tbl"><table class="data">
+      <thead><tr><th>Performance</th><th class="n">Points</th></tr></thead>
+      <tbody>
+        <tr><td>At or below baseline (≤ 0.4276)</td><td class="n">0</td></tr>
+        <tr><td>Beats baseline</td><td class="n">20</td></tr>
+        <tr><td>F1 ≥ 0.50</td><td class="n">25</td></tr>
+        <tr><td>F1 ≥ 0.55</td><td class="n">30</td></tr>
+        <tr><td>F1 ≥ 0.60</td><td class="n">35</td></tr>
+        <tr><td>F1 ≥ 0.65</td><td class="n">38</td></tr>
+        <tr><td>F1 ≥ 0.70</td><td class="n">40</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 class="sub">Hidden test performance</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:0 0 6px">Relative improvement over the baseline on the withheld set, scored after the deadline: (team F1 − baseline F1) / baseline F1 × 100.</p>
+    <div class="tbl"><table class="data">
+      <thead><tr><th>Improvement over baseline</th><th class="n">Points</th></tr></thead>
+      <tbody>
+        <tr><td>&lt; −15%</td><td class="n">0</td></tr>
+        <tr><td>−15% to −8%</td><td class="n">4</td></tr>
+        <tr><td>−8% to −4%</td><td class="n">8</td></tr>
+        <tr><td>−4% to 0%</td><td class="n">12</td></tr>
+        <tr><td>At baseline</td><td class="n">15</td></tr>
+        <tr><td>0% to +5%</td><td class="n">17</td></tr>
+        <tr><td>+5% to +10%</td><td class="n">19</td></tr>
+        <tr><td>+10% to +15%</td><td class="n">22</td></tr>
+        <tr><td>+15% to +20%</td><td class="n">25</td></tr>
+        <tr><td>+20% to +25%</td><td class="n">28</td></tr>
+        <tr><td>+25% to +30%</td><td class="n">30</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 class="sub">Bonus (up to 10 pts)</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:0 0 6px">By final hidden-test leaderboard rank, among teams that beat the baseline. Ties share the higher bracket.</p>
+    <div class="tbl"><table class="data">
+      <thead><tr><th>Leaderboard rank</th><th class="n">Bonus</th></tr></thead>
+      <tbody>
+        <tr><td>1st place</td><td class="n">10</td></tr>
+        <tr><td>2nd place</td><td class="n">8</td></tr>
+        <tr><td>3rd place</td><td class="n">6</td></tr>
+        <tr><td>Top 33% (ranks 4–6)</td><td class="n">3</td></tr>
+        <tr><td>Top 66% (ranks 7–13)</td><td class="n">1</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 class="sub">Recorded presentation</h3>
+    <div class="tbl"><table class="data">
+      <thead><tr><th>Criteria</th><th class="n">Points</th></tr></thead>
+      <tbody>
+        <tr><td>No presentation or incomprehensible</td><td class="n">0</td></tr>
+        <tr><td>Poorly structured, missing key results</td><td class="n">1–8</td></tr>
+        <tr><td>Adequate — covers approach and results but lacks depth</td><td class="n">9–16</td></tr>
+        <tr><td>Clear, well-structured, all members present</td><td class="n">17–21</td></tr>
+        <tr><td>Excellent — professional, insightful, all contribute</td><td class="n">22–25</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 class="sub">Code quality</h3>
+    <div class="tbl"><table class="data">
+      <thead><tr><th>Criteria</th><th class="n">Points</th></tr></thead>
+      <tbody>
+        <tr><td>Does not run or is unreadable</td><td class="n">0</td></tr>
+        <tr><td>Runs but poorly organised, no comments</td><td class="n">1–2</td></tr>
+        <tr><td>Reasonably readable with some comments</td><td class="n">3–4</td></tr>
+        <tr><td>Clean, well-commented, good structure</td><td class="n">5</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="policies">
+    <h2><span class="num">09</span> Rules &amp; Policies</h2>
+    <h3 class="sub">Academic integrity</h3>
+    <ul class="clean">
+      <li>All code must be written by your team.</li>
+      <li>You may consult papers, documentation, and blogs to learn — but do not copy code.</li>
+      <li>Sharing code, models, or predictions between teams is not permitted.</li>
+      <li>No pre-trained models and no external data.</li>
+    </ul>
+    <div class="warnbox"><span class="ico">!</span><div>Violations result in a zero for the assignment and may be referred to the university academic conduct process.</div></div>
+    <h3 class="sub">Late submissions</h3>
+    <p class="lead-max">All files for the final submission and presentation must be submitted on time. <b>Late submissions will not be graded.</b> Extensions will not be granted for unexcused reasons.</p>
+    <h3 class="sub">Questions</h3>
+    <p class="lead-max">Post general questions in the <span class="inlinecode">#ProgrammingChallenge</span> channel on MS Teams — don't include any part of your solution in public posts. For help with your specific implementation, message the instructor or TA privately.</p>
   </section>
 
   <section id="resources">
-    <h2><span class="num">07</span> Resources</h2>
+    <h2><span class="num">10</span> Resources</h2>
     <div class="chips">
       <a class="chip link" id="chipChallenge2" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Shell code &amp; baseline</a>
       <a class="chip link" id="chipLb" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Submissions folder</a>
       <a class="chip link" id="chipData2" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Download dataset</a>
     </div>
-    <details class="refs">
-      <summary>Suggested reading</summary>
+    <h3 class="sub">Suggested reading</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">Widely cited work on deep speech emotion recognition — inspiration, not required reading.</p>
+    <details class="refs" open>
+      <summary>Architectures &amp; survey</summary>
       <div class="body">
-        <h4>Surveys &amp; features</h4>
-        <p>Akçay &amp; Oğuz (2020), <i>Speech Communication</i> — full SER pipeline survey.</p>
-        <p>Davis &amp; Mermelstein (1980) — MFCCs; delta / delta-delta as temporal derivatives.</p>
         <h4>CNN-based</h4>
-        <p>Zhao, Mao &amp; Chen (2019) — 1D/2D CNN-LSTM. Badshah et al. (2017) — CNN on spectrograms as images.</p>
-        <h4>RNN &amp; attention</h4>
-        <p>Han, Yu &amp; Tashev (2014); Lee &amp; Tashev (2015) — DNN/BiLSTM features. Mirsamadi et al. (2017) — local attention over LSTM.</p>
-        <h4>Training</h4>
-        <p>Vaswani et al. (2017) — warmup schedule. Szegedy et al. (2016) — label smoothing. Park et al. (2019) — SpecAugment.</p>
+        <p>Zhao, J., Mao, X., &amp; Chen, L. (2019). Speech emotion recognition using deep 1D &amp; 2D CNN LSTM networks. <i>Biomedical Signal Processing and Control</i>, 47, 312–323.</p>
+        <p>Badshah, A. M., Ahmad, J., Rahim, N., &amp; Baik, S. W. (2017). Speech emotion recognition from spectrograms with deep convolutional neural network. <i>Int. Conf. on Platform Technology and Service</i>.</p>
+        <h4>RNN-based</h4>
+        <p>Han, K., Yu, D., &amp; Tashev, I. (2014). Speech emotion recognition using deep neural network and extreme learning machine. <i>INTERSPEECH</i>, 223–227.</p>
+        <p>Lee, J., &amp; Tashev, I. (2015). High-level feature representation using recurrent neural network for speech emotion recognition. <i>INTERSPEECH</i>.</p>
+        <h4>Attention-based</h4>
+        <p>Mirsamadi, S., Barsoum, E., &amp; Zhang, C. (2017). Automatic speech emotion recognition using recurrent neural networks with local attention. <i>ICASSP</i>.</p>
+        <p>Zhao, Z., Bao, Z., Zhang, Z., Schuller, B., &amp; Zheng, Y. (2021). Exploring deep spectrum representations via attention-based recurrent and convolutional neural networks for speech emotion recognition. <i>IEEE Access</i>.</p>
+        <h4>Survey</h4>
+        <p>Akçay, M. B., &amp; Oğuz, K. (2020). Speech emotion recognition: emotional models, databases, features, preprocessing methods, supporting modalities, and classifiers. <i>Speech Communication</i>, 116, 56–76.</p>
+      </div>
+    </details>
+    <details class="refs" open>
+      <summary>Features &amp; training strategy</summary>
+      <div class="body">
+        <h4>Spectrogram / Mel-spectrogram</h4>
+        <p>Allen, J. B. (1977). Short term spectral analysis, synthesis, and modification by discrete Fourier transform. <i>IEEE Trans. ASSP</i>, 25(3), 235–238. — Basis of the STFT and the spectrogram.</p>
+        <h4>MFCCs, delta &amp; delta-delta</h4>
+        <p>Davis, S. B., &amp; Mermelstein, P. (1980). Comparison of parametric representations for monosyllabic word recognition in continuously spoken sentences. <i>IEEE Trans. ASSP</i>, 28(4), 357–366. — MFCCs; delta and delta-delta as first and second temporal derivatives.</p>
+        <h4>Learning rate warmup</h4>
+        <p>Vaswani, A., et al. (2017). Attention is all you need. <i>NeurIPS</i>, 30. — Warmup + inverse-square-root decay schedule.</p>
+        <h4>Label smoothing</h4>
+        <p>Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., &amp; Wojna, Z. (2016). Rethinking the inception architecture for computer vision. <i>CVPR</i>, 2818–2826.</p>
+        <h4>Audio data augmentation</h4>
+        <p>Park, D. S., et al. (2019). SpecAugment: a simple data augmentation method for automatic speech recognition. <i>INTERSPEECH</i>, 2613–2617. — Time and frequency masking on the log-Mel spectrogram.</p>
       </div>
     </details>
   </section>
