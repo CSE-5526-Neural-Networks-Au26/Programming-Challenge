@@ -92,7 +92,7 @@ For reference, random chance across 6 balanced emotion classes would give a weig
 
 ## Getting Started
 
-> 💡 **You are encouraged to use OSC** (Ohio Supercomputer Center) to run your experiments, to avoid delays from computing issues. Instructions on using OSC will be covered during class. Do NOT hesitate to reach out if you have issues or questions about this at any point.
+> 💡 **You are encouraged to use OSC** (Ohio Supercomputer Center) to run your experiments, to avoid delays from computing issues. Do NOT hesitate to reach out if you have issues or questions about this at any point.
 
 ### 1. Install dependencies
 
