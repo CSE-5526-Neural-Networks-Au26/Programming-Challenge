@@ -17,7 +17,9 @@ Environment variables:
 """
 
 import os
+import re
 import json
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -29,6 +31,36 @@ SUBMISSIONS_DIR = Path("submissions")
 JSON_OUT        = Path("leaderboard.json")
 EMOTIONS        = ["anger", "disgust", "fear", "happy", "neutral", "sad"]
 EMOTION_TO_IDX  = {e: i for i, e in enumerate(EMOTIONS)}
+
+
+def git_commit_time(path):
+    """Real submission time = the last git commit that touched this file.
+
+    File mtimes all reset to the checkout time on every Action run, which made
+    every row show the latest run's time; the commit time is stable per file.
+    Requires full history (actions/checkout with fetch-depth: 0). Falls back to
+    the file mtime if git history is unavailable.
+    """
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cI", "--", str(path)],
+            capture_output=True, text=True, check=True,
+        ).stdout.strip()
+        if out:
+            return out
+    except Exception:
+        pass
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat()
+
+
+def team_label(stem):
+    """Display name for a submission: 'baseline', 'Group N', or the file stem."""
+    if stem.lower() == "baseline":
+        return "baseline"
+    m = re.fullmatch(r"group[_-]?0*(\d+)", stem.strip().lower())
+    if m:
+        return f"Group {int(m.group(1))}"
+    return stem.replace("_", " ")
 
 
 def load_ground_truth(gt_path):
@@ -45,12 +77,10 @@ def load_submissions():
                 print(f"  !!  {csv_file.name}: missing required columns")
                 continue
             rows.append({
-                "team_name": csv_file.stem.replace("_", " "),
+                "team_name": team_label(csv_file.stem),
                 "filename":  csv_file,
                 "df":        df,
-                "submitted_at": datetime.fromtimestamp(
-                    csv_file.stat().st_mtime, tz=timezone.utc
-                ).isoformat(),
+                "submitted_at": git_commit_time(csv_file),
             })
             print(f"  OK  {csv_file.name}")
         except Exception as e:

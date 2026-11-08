@@ -171,6 +171,9 @@
   .code-row{display:flex;flex-direction:column;gap:6px;max-width:320px}
   .code-row label{font-size:12px;font-weight:600;color:var(--muted)}
   .code-row input{background:var(--surface);border:1px solid var(--border);color:var(--fg);border-radius:9px;padding:9px 12px;font:inherit;font-size:14px}
+  .group-row{display:flex;flex-direction:column;gap:6px;max-width:220px}
+  .group-row label{font-size:12px;font-weight:600;color:var(--muted)}
+  .group-row select{background:var(--surface);border:1px solid var(--border);color:var(--fg);border-radius:9px;padding:9px 12px;font:inherit;font-size:14px}
   .submit-msg{font-size:13.5px;border-radius:10px;padding:11px 14px}
   .submit-msg.ok{background:var(--pos-weak);color:var(--pos);border:1px solid color-mix(in srgb,var(--pos) 34%,transparent)}
   .submit-msg.err{background:var(--accent-weak);color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
@@ -341,14 +344,14 @@
 
   <section id="submit">
     <h2><span class="num">06</span> Submit to the Leaderboard</h2>
-    <p class="lead-max">Choose your predictions CSV below. The page checks the format instantly — the same format we grade on — then hands off to GitHub to commit it into <span class="inlinecode">submissions/</span>. Scoring runs server-side against the public test labels; no self-reported numbers.</p>
+    <p class="lead-max">Pick your predictions CSV and your group number, then submit — it goes straight to the leaderboard, no GitHub account needed. The page checks the format first (the same format we grade on). Scoring runs server-side against the public test labels; no self-reported numbers. Your file can be named anything — we track submissions by group.</p>
 
     <div class="card submit-card">
       <label class="dropzone" id="dz" for="csvInput">
         <input id="csvInput" type="file" accept=".csv,text/csv" hidden>
         <span class="dz-inner">
           <span class="dz-ico">⬆</span>
-          <span class="dz-main" id="dzMain">Choose or drop your <b>&lt;team&gt;.csv</b></span>
+          <span class="dz-main" id="dzMain">Choose or drop your predictions <b>.csv</b></span>
           <span class="dz-sub">columns: clip_id, predicted_emotion</span>
         </span>
       </label>
@@ -358,13 +361,19 @@
         <ul class="checklist" id="vChecks"></ul>
       </div>
 
-      <div id="codeRow" class="code-row" hidden>
-        <label for="codeInput">Team code</label>
-        <input id="codeInput" type="text" autocomplete="off" spellcheck="false" placeholder="code from your instructor">
+      <div class="group-row">
+        <label for="groupSelect">Group number <span style="color:var(--accent-ink)">*</span></label>
+        <select id="groupSelect">
+          <option value="" selected disabled>Select your group…</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+          <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+          <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+        </select>
       </div>
       <div class="submit-actions">
         <button id="commitBtn" class="btn-primary disabled" type="button" disabled>Submit to leaderboard</button>
-        <span class="submit-hint" id="submitHint">Select a file to validate it first.</span>
+        <span class="submit-hint" id="submitHint">Choose your CSV and group to submit.</span>
       </div>
       <div id="submitMsg" class="submit-msg" hidden></div>
     </div>
@@ -669,54 +678,53 @@
   /* ---- in-page submission: validate locally, then submit via the Worker -- */
   // Paste your deployed Cloudflare Worker URL here (must end in /submit):
   const SUBMIT_ENDPOINT = "https://au26challenge.naimul-hassan273.workers.dev/submit";
-  // Set true only if your Worker enforces a class/team code (SUBMIT_CODE):
-  const REQUIRE_CODE = false;
 
   const VALID=new Set(["anger","disgust","fear","happy","neutral","sad"]);
   const dz=document.getElementById("dz"), csvInput=document.getElementById("csvInput"),
         vResult=document.getElementById("vResult"), vChecks=document.getElementById("vChecks"),
         vName=document.getElementById("vName"), commitBtn=document.getElementById("commitBtn"),
         submitHint=document.getElementById("submitHint"), dzMain=document.getElementById("dzMain"),
-        submitMsg=document.getElementById("submitMsg"), codeRow=document.getElementById("codeRow"),
-        codeInput=document.getElementById("codeInput");
-  if(REQUIRE_CODE) codeRow.hidden=false;
+        submitMsg=document.getElementById("submitMsg"), groupSelect=document.getElementById("groupSelect");
 
-  let curCSV=null, curTeam="", curValid=false;
+  let curCSV=null, fileOk=false, fileHint="Choose your CSV and group to submit.";
 
   ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("drag");}));
   ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("drag");}));
   dz.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)handleFile(f);});
   csvInput.addEventListener("change",e=>{const f=e.target.files[0];if(f)handleFile(f);});
+  groupSelect.addEventListener("change",()=>{clearMsg();refresh();});
 
   function mark(k){return `<span class="mk">${k==="ok"?"✓":k==="warn"?"!":"✕"}</span>`;}
   function addCheck(kind,text){const li=document.createElement("li");li.className=kind;li.innerHTML=mark(kind)+`<span>${text}</span>`;vChecks.appendChild(li);}
   function setMsg(kind,html){submitMsg.hidden=false;submitMsg.className="submit-msg "+kind;submitMsg.innerHTML=html;}
   function clearMsg(){submitMsg.hidden=true;submitMsg.innerHTML="";}
-  function lock(hint){curValid=false;commitBtn.classList.add("disabled");commitBtn.disabled=true;submitHint.textContent=hint;}
-  function unlock(){curValid=true;commitBtn.classList.remove("disabled");commitBtn.disabled=false;submitHint.textContent="Ready — submit it to the leaderboard.";}
+
+  function refresh(){
+    const g=groupSelect.value;
+    vName.innerHTML=g?`Submitting as <b>Group ${g}</b>`:"";
+    const ready=fileOk && !!g;
+    commitBtn.disabled=!ready;
+    commitBtn.classList.toggle("disabled",!ready);
+    if(ready) commitBtn.textContent="Submit to leaderboard";
+    submitHint.textContent = !fileOk ? fileHint : (!g ? "Select your group number to submit." : "Ready — submit to the leaderboard.");
+  }
 
   function handleFile(file){
     clearMsg();
     commitBtn.textContent="Submit to leaderboard";
     dzMain.innerHTML=`Selected <b>${file.name.replace(/[<>]/g,"")}</b>`;
     const reader=new FileReader();
-    reader.onload=()=>validate(file,String(reader.result));
-    reader.onerror=()=>{vResult.hidden=false;vChecks.innerHTML="";vName.textContent="";addCheck("err","Could not read that file.");lock("Try another file.");};
+    reader.onload=()=>validate(String(reader.result));
+    reader.onerror=()=>{vResult.hidden=false;vChecks.innerHTML="";fileOk=false;fileHint="Could not read that file — try another.";refresh();};
     reader.readAsText(file);
   }
 
-  function validate(file,text){
+  function validate(text){
     vResult.hidden=false; vChecks.innerHTML=""; curCSV=text;
-    const team=file.name.replace(/\.csv$/i,"").replace(/_/g," ").trim();
-    curTeam=team;
-    vName.innerHTML=team?`Leaderboard name: <b>${team.replace(/[<>]/g,"")}</b>`:"";
     let fatal=false;
 
-    if(/\.csv$/i.test(file.name)) addCheck("ok","Filename ends in .csv");
-    else { addCheck("err","File must be named &lt;team&gt;.csv"); fatal=true; }
-
     const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim().length);
-    if(!lines.length){ addCheck("err","File is empty."); lock("Fix the issue above, then re-select the file."); return; }
+    if(!lines.length){ addCheck("err","File is empty."); fileOk=false; fileHint="Fix the issue above, then re-select the file."; refresh(); return; }
 
     const header=lines[0].split(",").map(s=>s.trim().toLowerCase());
     const ci=header.indexOf("clip_id"), pi=header.indexOf("predicted_emotion");
@@ -738,30 +746,32 @@
       if(empties) addCheck("warn",`${empties} row(s) have an empty clip_id`);
     }
 
-    fatal ? lock("Fix the issue(s) above, then re-select the file.") : unlock();
+    fileOk=!fatal;
+    fileHint = fatal ? "Fix the issue(s) above, then re-select the file." : "";
+    refresh();
   }
 
   commitBtn.addEventListener("click",async()=>{
-    if(!curValid) return;
+    const g=groupSelect.value;
+    if(!fileOk || !g) return;
     if(SUBMIT_ENDPOINT.includes("REPLACE_ME")){ setMsg("err","Submissions aren't open yet — the instructor is finishing setup."); return; }
-    if(REQUIRE_CODE && !codeInput.value.trim()){ setMsg("err","Enter your team code to submit."); return; }
     clearMsg();
     commitBtn.disabled=true;
     commitBtn.innerHTML='<span class="spin spin-sm"></span>Submitting…';
     try{
       const res=await fetch(SUBMIT_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({team:curTeam,csv:curCSV,code:codeInput?codeInput.value.trim():""})});
+        body:JSON.stringify({group:Number(g),csv:curCSV})});
       const data=await res.json().catch(()=>({}));
       if(res.ok && data.ok){
-        setMsg("ok",`Submitted <b>${String(data.team||curTeam).replace(/[<>]/g,"")}</b> (${Number(data.rows||0).toLocaleString()} rows). The leaderboard updates in a minute or two.`);
-        commitBtn.textContent="Submitted ✓"; curValid=false;
+        setMsg("ok",`Submitted <b>${String(data.team||("Group "+g)).replace(/[<>]/g,"")}</b> (${Number(data.rows||0).toLocaleString()} rows). The leaderboard updates in a minute or two.`);
+        commitBtn.textContent="Submitted ✓"; commitBtn.disabled=true; commitBtn.classList.add("disabled");
       }else{
         setMsg("err",String(data.error||`Submission failed (${res.status}).`).replace(/[<>]/g,""));
-        commitBtn.textContent="Submit to leaderboard"; commitBtn.disabled=false;
+        commitBtn.textContent="Submit to leaderboard"; commitBtn.disabled=false; commitBtn.classList.remove("disabled");
       }
     }catch(err){
       setMsg("err","Could not reach the submission service. Check your connection and try again.");
-      commitBtn.textContent="Submit to leaderboard"; commitBtn.disabled=false;
+      commitBtn.textContent="Submit to leaderboard"; commitBtn.disabled=false; commitBtn.classList.remove("disabled");
     }
   });
 </script>

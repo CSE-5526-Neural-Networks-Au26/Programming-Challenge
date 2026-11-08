@@ -1,23 +1,25 @@
 /**
  * SER Challenge — submission Worker
  * =================================
- * Receives { team, csv, code } from the project page, re-validates the CSV
- * server-side, and commits it to submissions/<team>.csv in the repo using a
- * repo-scoped GitHub token held ONLY as a Worker secret.
+ * Receives { group, csv, code } from the project page, re-validates the CSV
+ * server-side, and commits it to submissions/group_<NN>.csv in the repo using
+ * a repo-scoped GitHub token held ONLY as a Worker secret.
  *
- * It can ONLY create/update submissions/<slug>.csv — it cannot touch code,
+ * It can ONLY create/update submissions/group_<NN>.csv — it cannot touch code,
  * the leaderboard, the ground truth, or any other file. Students need no
- * GitHub account and no repo access.
+ * GitHub account and no repo access, and submit by group number (1–20); the
+ * uploaded filename does not matter.
  *
- * Secrets (set with `wrangler secret put ...`, never in code):
+ * Secrets (set with `wrangler secret put ...` or in the Cloudflare dashboard):
  *   GITHUB_TOKEN  - fine-grained token, this repo only, Contents: Read & write
- *   SUBMIT_CODE   - (optional) a class/team code; if set, it is required
- * Vars (wrangler.toml):
+ *   SUBMIT_CODE   - (optional) a class code; if set, it is required
+ * Vars:
  *   REPO_OWNER, REPO_NAME, ALLOWED_ORIGIN
  */
 
-const EMOTIONS = new Set(["anger", "disgust", "fear", "happy", "neutral", "sad"]);
+const EMOTIONS  = new Set(["anger", "disgust", "fear", "happy", "neutral", "sad"]);
 const MAX_BYTES = 5_000_000;
+const MAX_GROUP = 20;
 
 export default {
   async fetch(request, env) {
@@ -36,28 +38,26 @@ export default {
     try { body = await request.json(); }
     catch { return json({ ok: false, error: "Invalid request." }, 400, cors); }
 
-    const team = String(body.team || "").trim();
     const csv  = String(body.csv || "");
     const code = String(body.code || "");
 
     if (env.SUBMIT_CODE && code !== env.SUBMIT_CODE)
-      return json({ ok: false, error: "Invalid team code." }, 403, cors);
-    if (!team)
-      return json({ ok: false, error: "Missing team name." }, 400, cors);
+      return json({ ok: false, error: "Invalid code." }, 403, cors);
+
+    const group = Number.parseInt(body.group, 10);
+    if (!Number.isInteger(group) || group < 1 || group > MAX_GROUP)
+      return json({ ok: false, error: `Pick a group number between 1 and ${MAX_GROUP}.` }, 400, cors);
+
     if (csv.length > MAX_BYTES)
       return json({ ok: false, error: "File is too large." }, 413, cors);
-
-    // Sanitize the team name into a safe, single filename. This is the only
-    // path the Worker will ever write — nothing else is reachable.
-    const slug = team.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 60);
-    if (!slug) return json({ ok: false, error: "Team name has no usable characters." }, 400, cors);
 
     const v = validateCSV(csv);
     if (!v.ok) return json({ ok: false, error: v.error }, 422, cors);
 
+    // The ONLY path this Worker can write.
+    const slug  = `group_${String(group).padStart(2, "0")}`;
     const owner = env.REPO_OWNER, repo = env.REPO_NAME;
-    const path  = `submissions/${slug}.csv`;
-    const api   = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    const api   = `https://api.github.com/repos/${owner}/${repo}/contents/submissions/${slug}.csv`;
     const gh = {
       "Authorization": `Bearer ${env.GITHUB_TOKEN}`,
       "Accept": "application/vnd.github+json",
@@ -65,7 +65,7 @@ export default {
       "X-GitHub-Api-Version": "2022-11-28",
     };
 
-    // Look up the existing file's SHA (required to update it); 404 means new.
+    // Existing file SHA (needed to update it); 404 means this group is new.
     let sha;
     const head = await fetch(`${api}?ref=main`, { headers: gh });
     if (head.status === 200) sha = (await head.json()).sha;
@@ -78,7 +78,7 @@ export default {
       method: "PUT",
       headers: { ...gh, "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: `Submission: ${slug} (${v.rows} rows)`,
+        message: `Submission: Group ${group} (${v.rows} rows)`,
         content: toBase64(csv),
         branch: "main",
         ...(sha ? { sha } : {}),
@@ -86,7 +86,7 @@ export default {
     });
     if (!put.ok) return json({ ok: false, error: `Commit failed (${put.status}).` }, 502, cors);
 
-    return json({ ok: true, team: slug.replace(/_/g, " "), rows: v.rows }, 200, cors);
+    return json({ ok: true, team: `Group ${group}`, rows: v.rows }, 200, cors);
   },
 };
 
