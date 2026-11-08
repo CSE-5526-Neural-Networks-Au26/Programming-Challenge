@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-08 23:20 UTC",
+  "generated_at": "2026-11-08 23:26 UTC",
   "baseline_f1": 0.4276,
   "metric": "weighted F1 (public test set)",
-  "team_count": 2,
+  "team_count": 1,
   "teams": [
     {
       "rank": 1,
@@ -11,16 +11,7 @@
       "delta_pct": 0.0,
       "beats_baseline": false,
       "is_baseline": true,
-      "submitted_at": "2026-11-08T23:19:29.650938+00:00"
-    },
-    {
-      "rank": 2,
-      "team_name": "pilot",
-      "weighted_f1": 0.4276,
-      "delta_pct": 0.0,
-      "beats_baseline": false,
-      "is_baseline": false,
-      "submitted_at": "2026-11-08T23:19:29.652477+00:00"
+      "submitted_at": "2026-11-08T23:26:28.910901+00:00"
     }
   ]
 }
