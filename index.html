@@ -1,0 +1,447 @@
+<title>SER Challenge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: single centered column with full-bleed scarlet header band; OSU scarlet accent on a cool-gray neutral. */
+  :root{
+    --bg:#f6f6f7; --surface:#ffffff; --surface-2:#f0f0f2;
+    --fg:#17171a; --muted:#64646b; --border:#e4e4e9;
+    --accent:#bb0000; --accent-ink:#8f0000; --accent-weak:#f7e7e7;
+    --on-accent:#ffffff;
+    --pos:#0a7d4d; --pos-weak:#e7f4ec;
+    --warn:#9a5b00; --warn-weak:#f6eede;
+    --ring:rgba(187,0,0,.38);
+    --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+    --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --display:"Archivo","Public Sans",system-ui,sans-serif;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#121214; --surface:#1b1b1f; --surface-2:#242429;
+    --fg:#ececed; --muted:#9a9aa3; --border:#2c2c33;
+    --accent:#ff5a52; --accent-ink:#ff8d87; --accent-weak:#3a1c1b;
+    --on-accent:#ffffff;
+    --pos:#36d399; --pos-weak:#14312a;
+    --warn:#e2a742; --warn-weak:#322915;
+    --ring:rgba(255,90,82,.42);
+    color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#121214; --surface:#1b1b1f; --surface-2:#242429;
+    --fg:#ececed; --muted:#9a9aa3; --border:#2c2c33;
+    --accent:#ff5a52; --accent-ink:#ff8d87; --accent-weak:#3a1c1b;
+    --on-accent:#ffffff;
+    --pos:#36d399; --pos-weak:#14312a;
+    --warn:#e2a742; --warn-weak:#322915;
+    --ring:rgba(255,90,82,.42);
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--accent);z-index:30}
+  a{color:var(--accent-ink);text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;letter-spacing:-.01em;margin:0}
+  :focus-visible{outline:2px solid var(--ring);outline-offset:2px;border-radius:4px}
+  .wrap{width:100%;max-width:980px;margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+
+  /* sticky top bar */
+  .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .topbar .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;min-height:52px}
+  .brand{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.02em;display:flex;align-items:center;gap:9px}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);flex:none}
+  .topbar nav{margin-left:auto;display:flex;gap:4px;align-items:center}
+  .topbar nav a{color:var(--muted);font-size:13px;font-weight:600;padding:6px 9px;border-radius:7px}
+  .topbar nav a:hover{color:var(--fg);background:var(--surface-2);text-decoration:none}
+  .tbtn{background:var(--surface-2);border:1px solid var(--border);color:var(--fg);width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:15px;display:grid;place-items:center;flex:none}
+  @media(max-width:620px){.topbar nav a.hideable{display:none}}
+
+  /* hero */
+  .hero{background:
+      radial-gradient(120% 140% at 85% -20%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 60%),
+      var(--surface);
+     border-bottom:1px solid var(--border)}
+  .hero .wrap{padding-block:46px 40px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  .hero h1{font-size:clamp(30px,6vw,52px);font-weight:800;margin:14px 0 0}
+  .hero p.lede{font-size:clamp(16px,2.4vw,19px);color:var(--muted);max-width:60ch;margin:16px 0 0}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;color:var(--fg)}
+  .chip b{color:var(--muted);font-weight:600}
+  .chip.link:hover{border-color:var(--accent);text-decoration:none}
+  .chip .ico{font-size:13px}
+
+  main .wrap{padding-block:16px}
+  section{padding-block:34px;border-top:1px solid var(--border)}
+  section:first-child{border-top:0}
+  section h2{font-size:clamp(21px,3.4vw,27px);font-weight:800;display:flex;align-items:center;gap:11px}
+  section h2 .num{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:7px;padding:2px 7px;font-weight:600}
+  section > p:first-of-type{margin-top:12px}
+  p{margin:0 0 12px}
+  .lead-max{max-width:68ch}
+
+  /* leaderboard */
+  .lb-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;margin-top:8px}
+  .lb-stat{display:flex;flex-direction:column;gap:2px}
+  .lb-stat .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  .lb-stat .v{font-family:var(--mono);font-size:19px;font-weight:600}
+  .lb-note{display:inline-flex;align-items:center;gap:7px;background:var(--accent-weak);color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:600;margin-top:14px}
+  .lb-controls{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 12px}
+  .lb-controls input{flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);color:var(--fg);border-radius:9px;padding:9px 12px;font:inherit;font-size:14px}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--surface)}
+  .seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;font-weight:600;padding:9px 13px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+
+  .lb-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:13px;background:var(--surface)}
+  table.lb{width:100%;border-collapse:collapse;min-width:520px;font-variant-numeric:tabular-nums}
+  table.lb th,table.lb td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--border);white-space:nowrap}
+  table.lb thead th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;background:var(--surface-2)}
+  table.lb tbody tr:last-child td{border-bottom:0}
+  table.lb td.team{white-space:normal;font-weight:600;text-transform:capitalize}
+  table.lb td.rank{font-family:var(--mono);color:var(--muted);width:56px}
+  table.lb td.f1{font-family:var(--mono);font-weight:600;font-size:15px}
+  table.lb td.date{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .medal{font-size:15px}
+  .delta{font-family:var(--mono);font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:5px}
+  .delta.up{color:var(--pos)}
+  .delta.down{color:var(--warn)}
+  .delta.zero{color:var(--muted)}
+  tr.is-baseline{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+  tr.is-baseline td.team::after{content:"reference";font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--on-accent);background:var(--accent);border-radius:5px;padding:2px 6px;margin-left:9px;vertical-align:1px}
+  .tag-beat{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--pos);background:var(--pos-weak);border-radius:5px;padding:2px 6px;margin-left:8px}
+  .lb-state{padding:40px 16px;text-align:center;color:var(--muted);font-size:14px}
+  .spin{width:22px;height:22px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;display:inline-block;animation:sp .8s linear infinite;vertical-align:-5px;margin-right:9px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){.spin{animation:none}}
+  .lb-foot{font-size:12.5px;color:var(--muted);margin-top:10px}
+
+  /* generic blocks */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px}
+  .card h3{font-size:15px;font-weight:700;margin-bottom:10px}
+  .deflist{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:14px}
+  .deflist dt{color:var(--muted);font-weight:600}
+  .deflist dd{margin:0;font-family:var(--mono);font-size:13px}
+  ul.clean{margin:0;padding-left:20px}
+  ul.clean li{margin:5px 0}
+
+  table.data{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px}
+  table.data th,table.data td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
+  table.data thead th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  table.data td.n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+  .emotions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .emotion{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:999px;padding:6px 13px 6px 10px;font-size:13px;font-weight:600;background:var(--surface)}
+  .emotion i{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+  ol.steps{counter-reset:s;list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}
+  ol.steps li{counter-increment:s;position:relative;padding-left:44px;min-height:30px}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:9px;background:var(--accent);color:var(--on-accent);font-family:var(--mono);font-weight:600;font-size:14px;display:grid;place-items:center}
+  ol.steps code,.inlinecode{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px}
+  pre.code{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.5;margin:12px 0}
+
+  .warnbox{display:flex;gap:12px;background:var(--warn-weak);border:1px solid color-mix(in srgb,var(--warn) 34%,transparent);border-radius:11px;padding:14px 16px;font-size:13.5px;margin-top:14px}
+  .warnbox .ico{color:var(--warn);font-weight:700;flex:none}
+
+  .grade-row{display:flex;justify-content:space-between;gap:14px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--border)}
+  .grade-row:last-child{border-bottom:0}
+  .grade-row .pts{font-family:var(--mono);font-weight:600;color:var(--accent-ink);flex:none}
+  .grade-row small{color:var(--muted);display:block;font-weight:400}
+
+  details.refs{border:1px solid var(--border);border-radius:11px;background:var(--surface);margin-top:12px;overflow:hidden}
+  details.refs summary{cursor:pointer;padding:13px 16px;font-weight:700;font-size:14px;font-family:var(--display)}
+  details.refs[open] summary{border-bottom:1px solid var(--border)}
+  details.refs .body{padding:6px 18px 14px}
+  details.refs h4{margin:14px 0 4px;font-size:13px;color:var(--accent-ink);font-family:var(--display)}
+  details.refs p{font-size:12.5px;color:var(--muted);margin:4px 0}
+
+  footer{border-top:1px solid var(--border);margin-top:10px}
+  footer .wrap{padding-block:26px;color:var(--muted);font-size:12.5px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+</style>
+
+<div class="topbar">
+  <div class="wrap">
+    <span class="brand"><span class="dot"></span>SER Challenge</span>
+    <nav>
+      <a href="#leaderboard">Leaderboard</a>
+      <a href="#task" class="hideable">Task</a>
+      <a href="#dataset" class="hideable">Dataset</a>
+      <a href="#submit" class="hideable">Submit</a>
+      <a href="#grading" class="hideable">Grading</a>
+      <button class="tbtn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">◐</button>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">CSE 5526 · Intro to Neural Networks · Autumn 2026</div>
+    <h1>Speech Emotion&nbsp;Recognition Challenge</h1>
+    <p class="lede">Build a model that reads emotion from speech. Start from a provided LSTM baseline, improve it however you like, and climb the public leaderboard — final grading runs on a hidden test set after the deadline.</p>
+    <div class="chips">
+      <span class="chip"><b>Due</b>&nbsp;TBD</span>
+      <span class="chip"><b>Teams of</b>&nbsp;2–3</span>
+      <span class="chip"><b>Baseline F1</b>&nbsp;0.4276</span>
+      <a class="chip link" id="chipChallenge" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Challenge repo</a>
+      <a class="chip link" id="chipData" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Dataset</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="leaderboard">
+    <h2><span class="num">01</span> Public Leaderboard</h2>
+    <div class="lb-head">
+      <div class="lb-stat"><span class="k">Teams</span><span class="v" id="sTeams">—</span></div>
+      <div class="lb-stat"><span class="k">Baseline F1</span><span class="v" id="sBase">—</span></div>
+      <div class="lb-stat"><span class="k">Top F1</span><span class="v" id="sTop">—</span></div>
+      <div class="lb-stat"><span class="k">Updated</span><span class="v" id="sUpd" style="font-size:14px">—</span></div>
+    </div>
+    <div class="lb-note">● Ranks the <b>&nbsp;public&nbsp;</b> test set only. Your grade is decided on the hidden test set.</div>
+
+    <div class="lb-controls">
+      <input id="lbSearch" type="search" placeholder="Filter by team name…" aria-label="Filter teams">
+      <div class="seg" role="group" aria-label="Sort by">
+        <button data-sort="f1" aria-pressed="true">Score</button>
+        <button data-sort="name" aria-pressed="false">Name</button>
+        <button data-sort="recent" aria-pressed="false">Recent</button>
+      </div>
+    </div>
+
+    <div class="lb-table-wrap">
+      <table class="lb" id="lbTable" hidden>
+        <thead><tr>
+          <th>#</th><th>Team</th><th>Weighted F1</th><th>vs. Baseline</th><th>Submitted</th>
+        </tr></thead>
+        <tbody id="lbBody"></tbody>
+      </table>
+      <div class="lb-state" id="lbState"><span class="spin"></span>Loading leaderboard…</div>
+    </div>
+    <p class="lb-foot" id="lbFoot"></p>
+  </section>
+
+  <section id="task">
+    <h2><span class="num">02</span> The Task</h2>
+    <p class="lead-max">Each clip is one speaker expressing one of six emotions. You are given a labelled training set and a labelled public test set; your job is to train a model that generalizes to <b>unseen speakers</b>. The data is split by speaker identity — no speaker appears in more than one split — which makes this much harder than a random split and is where most of the difficulty (and the fun) lives.</p>
+    <p class="lead-max">You may change anything: architecture, features, and training strategy. Common directions:</p>
+    <div class="grid2">
+      <div class="card"><h3>Architecture</h3><ul class="clean">
+        <li>Bidirectional LSTM</li><li>CNN front-end for local features</li>
+        <li>Attention over LSTM outputs</li><li>Transformer encoder</li>
+        <li>Hybrid CNN + LSTM / Transformer</li></ul></div>
+      <div class="card"><h3>Features</h3><ul class="clean">
+        <li>Mel-spectrogram (baseline)</li><li>MFCCs + delta / delta-delta</li>
+        <li>Log-Mel filterbanks</li><li>Feature combinations</li></ul></div>
+      <div class="card"><h3>Training strategy</h3><ul class="clean">
+        <li>Dropout, weight decay, label smoothing</li>
+        <li>LR warmup or cosine annealing</li><li>Data augmentation (e.g. SpecAugment)</li></ul></div>
+      <div class="card"><h3>Rules</h3><ul class="clean">
+        <li>Python + PyTorch only</li><li><b>No</b> pre-trained models</li>
+        <li><b>No</b> external data</li><li>All code written by your team</li></ul></div>
+    </div>
+  </section>
+
+  <section id="dataset">
+    <h2><span class="num">03</span> Dataset</h2>
+    <p class="lead-max">Download, unzip, and place <span class="inlinecode">dataset/</span> next to your code. Each labels CSV has two columns: <span class="inlinecode">clip_id</span> and <span class="inlinecode">emotion</span>.</p>
+    <table class="data">
+      <thead><tr><th>Split</th><th class="n">Clips</th><th>Labels</th></tr></thead>
+      <tbody>
+        <tr><td>Train</td><td class="n">~5,950</td><td>Provided</td></tr>
+        <tr><td>Public test</td><td class="n">~950</td><td>Provided — tune &amp; validate here</td></tr>
+        <tr><td>Hidden test</td><td class="n">~1,050</td><td>Withheld — used for final grading</td></tr>
+      </tbody>
+    </table>
+    <div class="emotions" id="emotions"></div>
+  </section>
+
+  <section id="baseline">
+    <h2><span class="num">04</span> Baseline</h2>
+    <p class="lead-max">A deliberately simple 2-layer LSTM on 64-bin Mel-spectrograms. It scores <b>weighted F1 = 0.4276</b> on the public test set — well above the ~0.167 chance level for six classes, with plenty of room to improve.</p>
+    <div class="grid2">
+      <div class="card"><h3>Model</h3><dl class="deflist">
+        <dt>Input</dt><dd>64-bin Mel-spec (25ms / 10ms)</dd>
+        <dt>Arch</dt><dd>2-layer LSTM, 128 hidden</dd>
+        <dt>Output</dt><dd>linear → 6 classes</dd>
+        <dt>Init</dt><dd>Xavier uniform</dd>
+      </dl></div>
+      <div class="card"><h3>Training</h3><dl class="deflist">
+        <dt>Optimizer</dt><dd>Adam, lr 1e-2</dd>
+        <dt>Scheduler</dt><dd>ReduceLROnPlateau</dd>
+        <dt>Batch</dt><dd>64 · max 100 epochs</dd>
+        <dt>Stop</dt><dd>early stop, patience 10</dd>
+      </dl></div>
+    </div>
+  </section>
+
+  <section id="submit">
+    <h2><span class="num">05</span> Get on the Leaderboard</h2>
+    <p class="lead-max">The leaderboard scores your predictions server-side against the public test labels — no self-reported numbers. To appear:</p>
+    <ol class="steps">
+      <li>Train your model, then run <code>test.py</code> to generate <code>&lt;team_name&gt;.csv</code> (columns <code>clip_id,predicted_emotion</code>).</li>
+      <li>Add your CSV to the course repo under <code>submissions/&lt;team_name&gt;.csv</code>.</li>
+      <li>A GitHub Action scores it and updates this page automatically within a minute or two.</li>
+    </ol>
+    <pre class="code">clip_id,predicted_emotion
+clip_000001,anger
+clip_000002,happy
+clip_000003,neutral</pre>
+    <div class="warnbox"><span class="ico">!</span><div>Your submitted <span class="inlinecode">test.py</span> must run without errors — we run it on the hidden test set after the deadline. A script that crashes or mis-formats its output scores zero on the hidden-test component. Test it on the public set first.</div></div>
+  </section>
+
+  <section id="grading">
+    <h2><span class="num">06</span> Grading</h2>
+    <p class="lead-max">100 points across four components, plus up to 10 bonus. Full rubric tables are in the assignment PDF — this is the summary.</p>
+    <div class="grade-row"><div>Public test performance<small>Weighted F1 on the public set, tiered from “beats baseline” up to F1 ≥ 0.70.</small></div><span class="pts">40</span></div>
+    <div class="grade-row"><div>Hidden test performance<small>Relative improvement over the baseline on the withheld set, scored after the deadline.</small></div><span class="pts">30</span></div>
+    <div class="grade-row"><div>Recorded presentation<small>15–20 min; every team member must speak.</small></div><span class="pts">25</span></div>
+    <div class="grade-row"><div>Code quality<small>Readability, comments, structure.</small></div><span class="pts">5</span></div>
+    <div class="grade-row"><div>Leaderboard bonus<small>Extra points by final hidden-test rank among teams that beat the baseline.</small></div><span class="pts">+10</span></div>
+  </section>
+
+  <section id="resources">
+    <h2><span class="num">07</span> Resources</h2>
+    <div class="chips">
+      <a class="chip link" id="chipChallenge2" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Shell code &amp; baseline</a>
+      <a class="chip link" id="chipLb" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Submissions folder</a>
+      <a class="chip link" id="chipData2" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Download dataset</a>
+    </div>
+    <details class="refs">
+      <summary>Suggested reading</summary>
+      <div class="body">
+        <h4>Surveys &amp; features</h4>
+        <p>Akçay &amp; Oğuz (2020), <i>Speech Communication</i> — full SER pipeline survey.</p>
+        <p>Davis &amp; Mermelstein (1980) — MFCCs; delta / delta-delta as temporal derivatives.</p>
+        <h4>CNN-based</h4>
+        <p>Zhao, Mao &amp; Chen (2019) — 1D/2D CNN-LSTM. Badshah et al. (2017) — CNN on spectrograms as images.</p>
+        <h4>RNN &amp; attention</h4>
+        <p>Han, Yu &amp; Tashev (2014); Lee &amp; Tashev (2015) — DNN/BiLSTM features. Mirsamadi et al. (2017) — local attention over LSTM.</p>
+        <h4>Training</h4>
+        <p>Vaswani et al. (2017) — warmup schedule. Szegedy et al. (2016) — label smoothing. Park et al. (2019) — SpecAugment.</p>
+      </div>
+    </details>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>CSE 5526 · The Ohio State University</span>
+    <span>Metric: weighted F1 · public leaderboard, hidden-test grading</span>
+    <span>Questions → <span class="inlinecode">#ProgrammingChallenge</span> on MS Teams</span>
+  </div>
+</footer>
+
+<script>
+  /* ---- Configuration -------------------------------------------------- */
+  // Where the page reads standings from. Default: a leaderboard.json sitting
+  // next to index.html (same repo + GitHub Pages). To host the page in a
+  // different repo, point this at the raw JSON, e.g.
+  //   "https://raw.githubusercontent.com/<org>/<leaderboard-repo>/main/leaderboard.json"
+  const LEADERBOARD_URL = "./leaderboard.json";
+
+  // Links used by the chips. Edit these to match your org/repos.
+  const LINKS = {
+    challenge: "https://github.com/CSE-5526-Neural-Networks-Au26/Programming-Challenge",
+    leaderboard: "https://github.com/CSE-5526-Neural-Networks-Au26/Programming-Challenge/tree/main/submissions",
+    dataset: "https://buckeyemailosu-my.sharepoint.com/:u:/g/personal/hassan_491_osu_edu/IQBtTHfYR2Z6Q7W5DOobyAP_AbPWYsrzLCSbQDYmlyoft_I?e=tO5vze"
+  };
+
+  const EMOTION_COLORS = {
+    anger:"#e4572e", disgust:"#6a994e", fear:"#8367c7",
+    happy:"#e9b000", neutral:"#8a8a94", sad:"#3a7ca5"
+  };
+
+  /* ---- wiring --------------------------------------------------------- */
+  for (const [id,key] of [["chipChallenge","challenge"],["chipChallenge2","challenge"],
+      ["chipData","dataset"],["chipData2","dataset"],["chipLb","leaderboard"]]){
+    const el=document.getElementById(id); if(el) el.href=LINKS[key];
+  }
+  const emoWrap=document.getElementById("emotions");
+  for (const [name,c] of Object.entries(EMOTION_COLORS)){
+    const s=document.createElement("span"); s.className="emotion";
+    s.innerHTML=`<i style="background:${c}"></i>${name}`; emoWrap.appendChild(s);
+  }
+
+  // theme toggle (per-viewer convenience only)
+  const root=document.documentElement, tbtn=document.getElementById("themeBtn");
+  try{const sv=localStorage.getItem("ser-theme"); if(sv) root.setAttribute("data-theme",sv);}catch(e){}
+  tbtn.addEventListener("click",()=>{
+    const cur=root.getAttribute("data-theme")
+      || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+    const next=cur==="dark"?"light":"dark";
+    root.setAttribute("data-theme",next);
+    try{localStorage.setItem("ser-theme",next);}catch(e){}
+  });
+
+  /* ---- leaderboard ---------------------------------------------------- */
+  let TEAMS=[], SORT="f1", Q="";
+  const body=document.getElementById("lbBody"), table=document.getElementById("lbTable"),
+        state=document.getElementById("lbState"), foot=document.getElementById("lbFoot");
+
+  function fmtDate(iso){
+    if(!iso) return "—";
+    const d=new Date(iso); if(isNaN(d)) return "—";
+    return d.toLocaleDateString(undefined,{month:"short",day:"numeric"})+
+      ", "+d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+  }
+  function medal(rank){ return rank===1?"🥇":rank===2?"🥈":rank===3?"🥉":""; }
+
+  function render(){
+    let rows=TEAMS.filter(t=>t.team_name.toLowerCase().includes(Q));
+    if(SORT==="name") rows.sort((a,b)=>a.team_name.localeCompare(b.team_name));
+    else if(SORT==="recent") rows.sort((a,b)=>new Date(b.submitted_at||0)-new Date(a.submitted_at||0));
+    else rows.sort((a,b)=>b.weighted_f1-a.weighted_f1);
+
+    body.innerHTML="";
+    if(!rows.length){ state.hidden=false; table.hidden=true;
+      state.innerHTML=TEAMS.length?"No teams match that filter.":"No submissions yet — be the first.";
+      return; }
+    state.hidden=true; table.hidden=false;
+
+    for(const t of rows){
+      const tr=document.createElement("tr");
+      if(t.is_baseline) tr.className="is-baseline";
+      const m=t.is_baseline?"":medal(t.rank);
+      let delta;
+      if(t.is_baseline) delta='<span class="delta zero">—</span>';
+      else if(t.delta_pct>0) delta=`<span class="delta up">▲ +${t.delta_pct.toFixed(2)}%</span>`;
+      else if(t.delta_pct<0) delta=`<span class="delta down">▼ ${t.delta_pct.toFixed(2)}%</span>`;
+      else delta='<span class="delta zero">±0%</span>';
+      const beat=(!t.is_baseline&&t.beats_baseline)?'<span class="tag-beat">beats baseline</span>':"";
+      tr.innerHTML=
+        `<td class="rank">${t.is_baseline?"·":t.rank}</td>`+
+        `<td class="team"><span class="medal">${m}</span> ${t.team_name}${beat}</td>`+
+        `<td class="f1">${t.weighted_f1.toFixed(4)}</td>`+
+        `<td>${delta}</td>`+
+        `<td class="date">${fmtDate(t.submitted_at)}</td>`;
+      body.appendChild(tr);
+    }
+  }
+
+  function setStats(d){
+    const teams=d.teams||[];
+    const nonBase=teams.filter(t=>!t.is_baseline);
+    document.getElementById("sTeams").textContent=nonBase.length;
+    document.getElementById("sBase").textContent=(d.baseline_f1??0).toFixed(4);
+    const top=teams.reduce((m,t)=>Math.max(m,t.weighted_f1),0);
+    document.getElementById("sTop").textContent=top?top.toFixed(4):"—";
+    document.getElementById("sUpd").textContent=d.generated_at||"—";
+    const beat=nonBase.filter(t=>t.beats_baseline).length;
+    foot.textContent=nonBase.length
+      ? `${beat} of ${nonBase.length} team${nonBase.length===1?"":"s"} currently beat the baseline.`
+      : "";
+  }
+
+  document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
+    document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true"); SORT=b.dataset.sort; render();
+  }));
+  document.getElementById("lbSearch").addEventListener("input",e=>{Q=e.target.value.toLowerCase().trim();render();});
+
+  fetch(LEADERBOARD_URL,{cache:"no-store"})
+    .then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
+    .then(d=>{TEAMS=d.teams||[];setStats(d);render();})
+    .catch(()=>{ state.hidden=false; table.hidden=true;
+      state.innerHTML='Could not load <span class="inlinecode">leaderboard.json</span> yet. Once it is published next to this page, standings appear here automatically.'; });
+</script>

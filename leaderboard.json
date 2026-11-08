@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-11-08 21:59 UTC",
+  "baseline_f1": 0.4276,
+  "metric": "weighted F1 (public test set)",
+  "team_count": 1,
+  "teams": [
+    {
+      "rank": 1,
+      "team_name": "baseline",
+      "weighted_f1": 0.4276,
+      "delta_pct": 0.0,
+      "beats_baseline": false,
+      "is_baseline": true,
+      "submitted_at": "2026-11-08T21:59:24.154171+00:00"
+    }
+  ]
+}

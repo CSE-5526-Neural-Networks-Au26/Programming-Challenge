@@ -1,0 +1,41 @@
+name: Update leaderboard
+
+on:
+  push:
+    paths:
+      - "submissions/**.csv"   # triggers on any new or updated submission CSV
+  workflow_dispatch:            # also allow manual trigger from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  update-leaderboard:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout leaderboard repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pandas scikit-learn
+
+      - name: Rebuild leaderboard
+        env:
+          GROUND_TRUTH: "ground_truth/public_test_labels.csv"
+        run: python build_leaderboard.py
+
+      - name: Commit updated leaderboard
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add LEADERBOARD.md leaderboard.json
+          git diff --staged --quiet || git commit -m "Update leaderboard [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+          git push
