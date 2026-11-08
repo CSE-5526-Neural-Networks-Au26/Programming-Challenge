@@ -143,6 +143,25 @@
   .warnbox{display:flex;gap:12px;background:var(--warn-weak);border:1px solid color-mix(in srgb,var(--warn) 34%,transparent);border-radius:11px;padding:14px 16px;font-size:13.5px;margin-top:14px}
   .warnbox .ico{color:var(--warn);font-weight:700;flex:none}
 
+  .submit-card{display:flex;flex-direction:column;gap:16px;margin-top:14px}
+  .dropzone{display:block;border:1.5px dashed var(--border);border-radius:12px;background:var(--surface-2);padding:26px 18px;cursor:pointer;text-align:center;transition:border-color .15s,background .15s}
+  .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-weak)}
+  .dz-inner{display:flex;flex-direction:column;gap:5px;align-items:center}
+  .dz-ico{font-size:22px;color:var(--accent)}
+  .dz-main{font-size:15px}
+  .dz-sub{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .v-name{font-family:var(--mono);font-size:13px}
+  .v-name b{color:var(--accent-ink);text-transform:capitalize}
+  .checklist{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .checklist li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px}
+  .checklist .mk{flex:none;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;margin-top:1px}
+  .checklist li.ok .mk{background:var(--pos)} .checklist li.err .mk{background:var(--accent)} .checklist li.warn .mk{background:var(--warn)}
+  .submit-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .btn-primary{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:14px;padding:11px 18px;border-radius:10px;cursor:pointer;border:0}
+  .btn-primary:hover{text-decoration:none;filter:brightness(1.06)}
+  .btn-primary.disabled{background:var(--surface-2);color:var(--muted);pointer-events:none}
+  .submit-hint{font-size:13px;color:var(--muted);min-width:0}
+
   .grade-row{display:flex;justify-content:space-between;gap:14px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--border)}
   .grade-row:last-child{border-bottom:0}
   .grade-row .pts{font-family:var(--mono);font-weight:600;color:var(--accent-ink);flex:none}
@@ -276,18 +295,33 @@
   </section>
 
   <section id="submit">
-    <h2><span class="num">05</span> Get on the Leaderboard</h2>
-    <p class="lead-max">The leaderboard scores your predictions server-side against the public test labels — no self-reported numbers. To appear:</p>
-    <ol class="steps">
-      <li>Train your model, then run <code>test.py</code> to generate <code>&lt;team_name&gt;.csv</code> (columns <code>clip_id,predicted_emotion</code>).</li>
-      <li>Add your CSV to the course repo under <code>submissions/&lt;team_name&gt;.csv</code>.</li>
-      <li>A GitHub Action scores it and updates this page automatically within a minute or two.</li>
-    </ol>
-    <pre class="code">clip_id,predicted_emotion
-clip_000001,anger
-clip_000002,happy
-clip_000003,neutral</pre>
-    <div class="warnbox"><span class="ico">!</span><div>Your submitted <span class="inlinecode">test.py</span> must run without errors — we run it on the hidden test set after the deadline. A script that crashes or mis-formats its output scores zero on the hidden-test component. Test it on the public set first.</div></div>
+    <h2><span class="num">05</span> Submit to the Leaderboard</h2>
+    <p class="lead-max">Choose your predictions CSV below. The page checks the format instantly — the same format we grade on — then hands off to GitHub to commit it into <span class="inlinecode">submissions/</span>. Scoring runs server-side against the public test labels; no self-reported numbers.</p>
+
+    <div class="card submit-card">
+      <label class="dropzone" id="dz" for="csvInput">
+        <input id="csvInput" type="file" accept=".csv,text/csv" hidden>
+        <span class="dz-inner">
+          <span class="dz-ico">⬆</span>
+          <span class="dz-main" id="dzMain">Choose or drop your <b>&lt;team&gt;.csv</b></span>
+          <span class="dz-sub">columns: clip_id, predicted_emotion</span>
+        </span>
+      </label>
+
+      <div id="vResult" hidden>
+        <div class="v-name" id="vName"></div>
+        <ul class="checklist" id="vChecks"></ul>
+      </div>
+
+      <div class="submit-actions">
+        <a id="commitBtn" class="btn-primary disabled" aria-disabled="true" rel="noopener">Commit on GitHub →</a>
+        <span class="submit-hint" id="submitHint">Select a file to validate it first.</span>
+      </div>
+    </div>
+
+    <p class="lb-foot" style="margin-top:14px">On GitHub, drop the same file and commit it. If you don't have write access, GitHub offers to fork and open a pull request. Either way, the Action scores it and this page updates within a minute or two.</p>
+
+    <div class="warnbox"><span class="ico">!</span><div>This is the exact format <span class="inlinecode">test.py</span> must produce on the hidden set after the deadline — a file that fails these checks, or a script that crashes, scores zero on the hidden-test component. Fix any issue here first.</div></div>
   </section>
 
   <section id="grading">
@@ -444,4 +478,65 @@ clip_000003,neutral</pre>
     .then(d=>{TEAMS=d.teams||[];setStats(d);render();})
     .catch(()=>{ state.hidden=false; table.hidden=true;
       state.innerHTML='Could not load <span class="inlinecode">leaderboard.json</span> yet. Once it is published next to this page, standings appear here automatically.'; });
+
+  /* ---- in-page submission: validate CSV, then hand off to GitHub ------ */
+  const VALID=new Set(["anger","disgust","fear","happy","neutral","sad"]);
+  const UPLOAD_URL=LINKS.challenge.replace(/\/+$/,"")+"/upload/main/submissions";
+  const dz=document.getElementById("dz"), csvInput=document.getElementById("csvInput"),
+        vResult=document.getElementById("vResult"), vChecks=document.getElementById("vChecks"),
+        vName=document.getElementById("vName"), commitBtn=document.getElementById("commitBtn"),
+        submitHint=document.getElementById("submitHint"), dzMain=document.getElementById("dzMain");
+
+  ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("drag");}));
+  ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("drag");}));
+  dz.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)handleFile(f);});
+  csvInput.addEventListener("change",e=>{const f=e.target.files[0];if(f)handleFile(f);});
+
+  function mark(k){return `<span class="mk">${k==="ok"?"✓":k==="warn"?"!":"✕"}</span>`;}
+  function addCheck(kind,text){const li=document.createElement("li");li.className=kind;li.innerHTML=mark(kind)+`<span>${text}</span>`;vChecks.appendChild(li);}
+  function lock(hint){commitBtn.classList.add("disabled");commitBtn.setAttribute("aria-disabled","true");commitBtn.removeAttribute("href");submitHint.textContent=hint;}
+  function unlock(){commitBtn.classList.remove("disabled");commitBtn.setAttribute("aria-disabled","false");commitBtn.href=UPLOAD_URL;commitBtn.target="_blank";submitHint.textContent="Looks good — commit on GitHub, then drop this same file there.";}
+
+  function handleFile(file){
+    dzMain.innerHTML=`Selected <b>${file.name.replace(/[<>]/g,"")}</b>`;
+    const reader=new FileReader();
+    reader.onload=()=>validate(file,String(reader.result));
+    reader.onerror=()=>{vResult.hidden=false;vChecks.innerHTML="";vName.textContent="";addCheck("err","Could not read that file.");lock("Try another file.");};
+    reader.readAsText(file);
+  }
+
+  function validate(file,text){
+    vResult.hidden=false; vChecks.innerHTML="";
+    const team=file.name.replace(/\.csv$/i,"").replace(/_/g," ").trim();
+    vName.innerHTML=team?`Leaderboard name: <b>${team.replace(/[<>]/g,"")}</b>`:"";
+    let fatal=false;
+
+    if(/\.csv$/i.test(file.name)) addCheck("ok","Filename ends in .csv");
+    else { addCheck("err","File must be named &lt;team&gt;.csv"); fatal=true; }
+
+    const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim().length);
+    if(!lines.length){ addCheck("err","File is empty."); lock("Fix the issue above, then re-select the file."); return; }
+
+    const header=lines[0].split(",").map(s=>s.trim().toLowerCase());
+    const ci=header.indexOf("clip_id"), pi=header.indexOf("predicted_emotion");
+    if(ci>=0&&pi>=0) addCheck("ok","Header has clip_id and predicted_emotion");
+    else { addCheck("err","Header must contain columns: clip_id, predicted_emotion"); fatal=true; }
+
+    if(ci>=0&&pi>=0){
+      const rows=lines.slice(1), bad=new Set(), seen=new Set(), dups=new Set(); let empties=0, badCount=0;
+      for(const l of rows){
+        const c=l.split(","), id=(c[ci]||"").trim(), em=(c[pi]||"").trim().toLowerCase();
+        if(!id) empties++; else { if(seen.has(id)) dups.add(id); seen.add(id); }
+        if(!VALID.has(em)){ badCount++; bad.add(em||"(blank)"); }
+      }
+      addCheck(rows.length?"ok":"err",`${rows.length.toLocaleString()} prediction row${rows.length===1?"":"s"}`);
+      if(!rows.length) fatal=true;
+      if(badCount){ addCheck("err",`${badCount} row(s) have invalid labels (e.g. ${[...bad].slice(0,4).join(", ")}). Allowed: anger, disgust, fear, happy, neutral, sad`); fatal=true; }
+      else if(rows.length) addCheck("ok","All labels are valid");
+      if(dups.size) addCheck("warn",`${dups.size} duplicate clip_id(s) — only one will be scored`);
+      if(empties) addCheck("warn",`${empties} row(s) have an empty clip_id`);
+    }
+
+    fatal ? lock("Fix the issue(s) above, then re-select the file.") : unlock();
+  }
 </script>
