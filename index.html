@@ -38,6 +38,8 @@
 
   *{box-sizing:border-box}
   [hidden]{display:none!important}
+  html{scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
+  @media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
   body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased}
   body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--accent);z-index:30}
   a{color:var(--accent-ink);text-decoration:none}
@@ -49,7 +51,8 @@
   /* sticky top bar */
   .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
   .topbar .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;min-height:52px}
-  .brand{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.02em;display:flex;align-items:center;gap:9px}
+  .brand{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.02em;display:flex;align-items:center;gap:9px;color:var(--fg);text-decoration:none;cursor:pointer}
+  .brand:hover{text-decoration:none;opacity:.82}
   .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);flex:none}
   .topbar nav{margin-left:auto;display:flex;gap:4px;align-items:center}
   .topbar nav a{color:var(--muted);font-size:13px;font-weight:600;padding:6px 9px;border-radius:7px}
@@ -188,7 +191,7 @@
 
 <div class="topbar">
   <div class="wrap">
-    <span class="brand"><span class="dot"></span>SER Challenge</span>
+    <a class="brand" href="#top"><span class="dot"></span>SER Challenge</a>
     <nav>
       <a href="#leaderboard">Leaderboard</a>
       <a href="#task" class="hideable">Task</a>
@@ -200,7 +203,7 @@
   </div>
 </div>
 
-<header class="hero">
+<header class="hero" id="top">
   <div class="wrap">
     <div class="eyebrow">CSE 5526 · Intro to Neural Networks · Autumn 2026</div>
     <h1>Speech Emotion&nbsp;Recognition Challenge</h1>
