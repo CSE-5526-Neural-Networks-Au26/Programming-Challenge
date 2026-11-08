@@ -40,7 +40,7 @@
   [hidden]{display:none!important}
   html{scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
   @media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
-  body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased}
+  body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.62;font-size:16.5px;-webkit-font-smoothing:antialiased}
   body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--accent);z-index:30}
   a{color:var(--accent-ink);text-decoration:none}
   a:hover{text-decoration:underline}
@@ -89,7 +89,7 @@
   .lb-stat{display:flex;flex-direction:column;gap:2px}
   .lb-stat .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
   .lb-stat .v{font-family:var(--mono);font-size:19px;font-weight:600}
-  .lb-note{display:inline-flex;align-items:center;gap:7px;background:var(--accent-weak);color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:600;margin-top:14px}
+  .lb-note{display:inline-flex;align-items:center;gap:7px;background:var(--accent-weak);color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;margin-top:14px}
   .lb-controls{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 12px}
   .lb-controls input{flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);color:var(--fg);border-radius:9px;padding:9px 12px;font:inherit;font-size:14px}
   .seg{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--surface)}
@@ -104,7 +104,7 @@
   table.lb td.team{white-space:normal;font-weight:600;text-transform:capitalize}
   table.lb td.rank{font-family:var(--mono);color:var(--muted);width:56px}
   table.lb td.f1{font-family:var(--mono);font-weight:600;font-size:15px}
-  table.lb td.date{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  table.lb td.date{font-family:var(--mono);font-size:13px;color:var(--muted)}
   .medal{font-size:15px}
   .delta{font-family:var(--mono);font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:5px}
   .delta.up{color:var(--pos)}
@@ -117,23 +117,27 @@
   .spin{width:22px;height:22px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;display:inline-block;animation:sp .8s linear infinite;vertical-align:-5px;margin-right:9px}
   @keyframes sp{to{transform:rotate(360deg)}}
   @media(prefers-reduced-motion:reduce){.spin{animation:none}}
-  .lb-foot{font-size:12.5px;color:var(--muted);margin-top:10px}
+  .lb-foot{font-size:13px;color:var(--muted);margin-top:10px}
 
   /* generic blocks */
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid2.top{align-items:start}
   @media(max-width:640px){.grid2{grid-template-columns:1fr}}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px}
-  .card h3{font-size:15px;font-weight:700;margin-bottom:10px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px;min-width:0}
+  .grid2>*{min-width:0}
+  pre.code{max-width:100%}
+  pre.code.wrap{white-space:pre-wrap;word-break:break-word}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:10px}
   .deflist{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:14px}
   .deflist dt{color:var(--muted);font-weight:600}
   .deflist dd{margin:0;font-family:var(--mono);font-size:13px}
   ul.clean{margin:0;padding-left:20px}
   ul.clean li{margin:5px 0}
-  .sub{font-family:var(--display);font-size:15px;font-weight:700;margin:24px 0 8px}
+  .sub{font-family:var(--display);font-size:16px;font-weight:700;margin:24px 0 8px}
   .tbl{overflow-x:auto}
   table.data th.n{text-align:right}
 
-  table.data{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px}
+  table.data{width:100%;border-collapse:collapse;font-size:15px;margin-top:4px}
   table.data th,table.data td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
   table.data thead th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
   table.data td.n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
@@ -144,10 +148,10 @@
   ol.steps{counter-reset:s;list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}
   ol.steps li{counter-increment:s;position:relative;padding-left:44px;min-height:30px}
   ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:9px;background:var(--accent);color:var(--on-accent);font-family:var(--mono);font-weight:600;font-size:14px;display:grid;place-items:center}
-  ol.steps code,.inlinecode{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px}
-  pre.code{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.5;margin:12px 0}
+  ol.steps code,.inlinecode{font-family:var(--mono);font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px}
+  pre.code{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.5;margin:12px 0}
 
-  .warnbox{display:flex;gap:12px;background:var(--warn-weak);border:1px solid color-mix(in srgb,var(--warn) 34%,transparent);border-radius:11px;padding:14px 16px;font-size:13.5px;margin-top:14px}
+  .warnbox{display:flex;gap:12px;background:var(--warn-weak);border:1px solid color-mix(in srgb,var(--warn) 34%,transparent);border-radius:11px;padding:14px 16px;font-size:14.5px;margin-top:14px}
   .warnbox .ico{color:var(--warn);font-weight:700;flex:none}
 
   .submit-card{display:flex;flex-direction:column;gap:16px;margin-top:14px}
@@ -155,12 +159,12 @@
   .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-weak)}
   .dz-inner{display:flex;flex-direction:column;gap:5px;align-items:center}
   .dz-ico{font-size:22px;color:var(--accent)}
-  .dz-main{font-size:15px}
+  .dz-main{font-size:16px}
   .dz-sub{font-family:var(--mono);font-size:12px;color:var(--muted)}
   .v-name{font-family:var(--mono);font-size:13px}
   .v-name b{color:var(--accent-ink);text-transform:capitalize}
   .checklist{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:7px}
-  .checklist li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px}
+  .checklist li{display:flex;gap:9px;align-items:flex-start;font-size:14.5px}
   .checklist .mk{flex:none;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;margin-top:1px}
   .checklist li.ok .mk{background:var(--pos)} .checklist li.err .mk{background:var(--accent)} .checklist li.warn .mk{background:var(--warn)}
   .submit-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
@@ -174,7 +178,7 @@
   .group-row{display:flex;flex-direction:column;gap:6px;max-width:220px}
   .group-row label{font-size:12px;font-weight:600;color:var(--muted)}
   .group-row select{background:var(--surface);border:1px solid var(--border);color:var(--fg);border-radius:9px;padding:9px 12px;font:inherit;font-size:14px}
-  .submit-msg{font-size:13.5px;border-radius:10px;padding:11px 14px}
+  .submit-msg{font-size:14.5px;border-radius:10px;padding:11px 14px}
   .submit-msg.ok{background:var(--pos-weak);color:var(--pos);border:1px solid color-mix(in srgb,var(--pos) 34%,transparent)}
   .submit-msg.err{background:var(--accent-weak);color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
   .spin-sm{width:14px;height:14px;border-width:2px;border-top-color:#fff;margin:0 7px 0 0;vertical-align:-2px;display:inline-block}
@@ -189,10 +193,10 @@
   details.refs[open] summary{border-bottom:1px solid var(--border)}
   details.refs .body{padding:6px 18px 14px}
   details.refs h4{margin:14px 0 4px;font-size:13px;color:var(--accent-ink);font-family:var(--display)}
-  details.refs p{font-size:12.5px;color:var(--muted);margin:4px 0}
+  details.refs p{font-size:13px;color:var(--muted);margin:4px 0}
 
   footer{border-top:1px solid var(--border);margin-top:10px}
-  footer .wrap{padding-block:26px;color:var(--muted);font-size:12.5px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+  footer .wrap{padding-block:26px;color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
 </style>
 
 <div class="topbar">
@@ -315,9 +319,9 @@
   <section id="getting-started">
     <h2><span class="num">05</span> Getting Started</h2>
     <p class="lead-max">Python and PyTorch only. You're encouraged to run experiments on <b>OSC</b> (Ohio Supercomputer Center) to avoid local compute delays — reach out anytime with setup questions.</p>
-    <div class="grid2">
+    <div class="grid2 top">
       <div class="card"><h3>1 · Install</h3>
-        <pre class="code">pip install torch torchaudio scikit-learn pandas matplotlib wandb tqdm</pre></div>
+        <pre class="code wrap">pip install torch torchaudio scikit-learn pandas matplotlib wandb tqdm</pre></div>
       <div class="card"><h3>2 · Data layout</h3>
         <pre class="code">dataset/
   train/  audio/  train_labels.csv
@@ -326,11 +330,11 @@
     <div class="card" style="margin-top:16px"><h3>3 · Train the baseline</h3>
       <pre class="code">python train.py --data_dir dataset --results_dir results \
                 --team_name baseline --run_name baseline_train</pre>
-      <p style="margin:10px 0 0;font-size:13.5px;color:var(--muted)">Splits train/validation 85/15, trains up to 100 epochs with early stopping, writes <span class="inlinecode">best_model.pt</span>, <span class="inlinecode">norm_stats.pt</span>, <span class="inlinecode">checkpoint.pt</span> and <span class="inlinecode">loss_curve.png</span> to <span class="inlinecode">results/&lt;team&gt;/</span>, and logs to Weights &amp; Biases. Re-running the command resumes from the checkpoint.</p></div>
+      <p style="margin:10px 0 0;font-size:14.5px;color:var(--muted)">Splits train/validation 85/15, trains up to 100 epochs with early stopping, writes <span class="inlinecode">best_model.pt</span>, <span class="inlinecode">norm_stats.pt</span>, <span class="inlinecode">checkpoint.pt</span> and <span class="inlinecode">loss_curve.png</span> to <span class="inlinecode">results/&lt;team&gt;/</span>, and logs to Weights &amp; Biases. Re-running the command resumes from the checkpoint.</p></div>
     <div class="card" style="margin-top:16px"><h3>4 · Evaluate &amp; make your CSV</h3>
       <pre class="code">python test.py --test_dir dataset/test --results_dir results \
                --team_name baseline --run_name baseline_test</pre>
-      <p style="margin:10px 0 0;font-size:13.5px;color:var(--muted)">Prints weighted and per-class F1, logs a confusion matrix, and writes your <span class="inlinecode">&lt;team&gt;.csv</span> of predictions.</p></div>
+      <p style="margin:10px 0 0;font-size:14.5px;color:var(--muted)">Prints weighted and per-class F1, logs a confusion matrix, and writes your <span class="inlinecode">&lt;team&gt;.csv</span> of predictions.</p></div>
     <h3 class="sub">Baseline repo files</h3>
     <div class="tbl"><table class="data"><tbody>
       <tr><td><span class="inlinecode">dataloader.py</span></td><td>Loads audio, computes Mel-spectrograms, returns DataLoaders</td></tr>
@@ -425,7 +429,7 @@
     </table></div>
 
     <h3 class="sub">Public test performance</h3>
-    <p style="font-size:13.5px;color:var(--muted);margin:0 0 6px">Weighted F1 on the public test set.</p>
+    <p style="font-size:14.5px;color:var(--muted);margin:0 0 6px">Weighted F1 on the public test set.</p>
     <div class="tbl"><table class="data">
       <thead><tr><th>Performance</th><th class="n">Points</th></tr></thead>
       <tbody>
@@ -440,7 +444,7 @@
     </table></div>
 
     <h3 class="sub">Hidden test performance</h3>
-    <p style="font-size:13.5px;color:var(--muted);margin:0 0 6px">Relative improvement over the baseline on the withheld set, scored after the deadline: (team F1 − baseline F1) / baseline F1 × 100.</p>
+    <p style="font-size:14.5px;color:var(--muted);margin:0 0 6px">Relative improvement over the baseline on the withheld set, scored after the deadline: (team F1 − baseline F1) / baseline F1 × 100.</p>
     <div class="tbl"><table class="data">
       <thead><tr><th>Improvement over baseline</th><th class="n">Points</th></tr></thead>
       <tbody>
@@ -459,7 +463,7 @@
     </table></div>
 
     <h3 class="sub">Bonus (up to 10 pts)</h3>
-    <p style="font-size:13.5px;color:var(--muted);margin:0 0 6px">By final hidden-test leaderboard rank, among teams that beat the baseline. Ties share the higher bracket.</p>
+    <p style="font-size:14.5px;color:var(--muted);margin:0 0 6px">By final hidden-test leaderboard rank, among teams that beat the baseline. Ties share the higher bracket.</p>
     <div class="tbl"><table class="data">
       <thead><tr><th>Leaderboard rank</th><th class="n">Bonus</th></tr></thead>
       <tbody>
@@ -519,7 +523,7 @@
       <a class="chip link" id="chipData2" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Download dataset</a>
     </div>
     <h3 class="sub">Suggested reading</h3>
-    <p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">Widely cited work on deep speech emotion recognition — inspiration, not required reading.</p>
+    <p style="font-size:14.5px;color:var(--muted);margin:0 0 10px">Widely cited work on deep speech emotion recognition — inspiration, not required reading.</p>
     <details class="refs" open>
       <summary>Architectures &amp; survey</summary>
       <div class="body">
