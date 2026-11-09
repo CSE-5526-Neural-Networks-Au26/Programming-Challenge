@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-09 00:40 UTC",
+  "generated_at": "2026-11-09 00:41 UTC",
   "baseline_f1": 0.4276,
   "metric": "weighted F1 (public test set)",
-  "team_count": 2,
+  "team_count": 3,
   "teams": [
     {
       "rank": 1,
@@ -15,6 +15,15 @@
     },
     {
       "rank": 2,
+      "team_name": "Group 3",
+      "weighted_f1": 0.4276,
+      "delta_pct": 0.0,
+      "beats_baseline": false,
+      "is_baseline": false,
+      "submitted_at": "2026-11-08T19:40:58-05:00"
+    },
+    {
+      "rank": 3,
       "team_name": "Group 4",
       "weighted_f1": 0.4276,
       "delta_pct": 0.0,
