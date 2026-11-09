@@ -142,12 +142,14 @@
   ul.clean{margin:0;padding-left:20px}
   ul.clean li{margin:5px 0}
   .sub{font-family:var(--display);font-size:16px;font-weight:700;margin:24px 0 8px}
-  .tbl{overflow-x:auto}
+  .tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:13px;margin:6px 0}
   table.data th.n{text-align:right}
 
   table.data{width:100%;border-collapse:collapse;font-size:15px;margin-top:4px}
-  table.data th,table.data td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
-  table.data thead th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  table.data th,table.data td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--border)}
+  table.data thead th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;background:var(--surface-2)}
+  table.data tbody tr:last-child td{border-bottom:0}
+  table.data tbody tr:hover td{background:color-mix(in srgb,var(--accent) 5%,transparent)}
   table.data td.n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
   .emotions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   .emotion{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:999px;padding:6px 13px 6px 10px;font-size:13px;font-weight:600;background:var(--surface)}
@@ -295,14 +297,14 @@
     <h2><span class="num">03</span> Dataset</h2>
     <p class="lead-max">Download, unzip, and place <span class="inlinecode">dataset/</span> next to your code. Each labels CSV has two columns: <span class="inlinecode">clip_id</span> and <span class="inlinecode">emotion</span>.</p>
     <div class="chips" style="margin-bottom:16px"><a class="chip link" id="chipData3" href="#" target="_blank" rel="noopener"><span class="ico">⬇</span> Download dataset (.zip)</a></div>
-    <table class="data">
+    <div class="tbl"><table class="data">
       <thead><tr><th>Split</th><th class="n">Clips</th><th>Labels</th></tr></thead>
       <tbody>
         <tr><td>Train</td><td class="n">~5,950</td><td>Provided</td></tr>
         <tr><td>Public test</td><td class="n">~950</td><td>Provided — tune &amp; validate here</td></tr>
         <tr><td>Hidden test</td><td class="n">~1,050</td><td>Withheld — used for final grading</td></tr>
       </tbody>
-    </table>
+    </table></div>
     <h3 class="sub">Emotion classes</h3>
     <p style="font-size:14.5px;color:var(--muted);margin:0 0 10px">The model outputs one of six classes (index → label):</p>
     <div class="emotions" id="emotions"></div>
