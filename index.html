@@ -295,6 +295,8 @@
         <tr><td>Hidden test</td><td class="n">~1,050</td><td>Withheld — used for final grading</td></tr>
       </tbody>
     </table>
+    <h3 class="sub">Emotion classes</h3>
+    <p style="font-size:14.5px;color:var(--muted);margin:0 0 10px">The model outputs one of six classes (index → label):</p>
     <div class="emotions" id="emotions"></div>
   </section>
 
@@ -404,6 +406,12 @@
         <tr><td><span class="inlinecode">README.md</span></td><td>How to run <span class="inlinecode">test.py</span></td></tr>
       </tbody>
     </table></div>
+    <p style="font-size:14.5px;color:var(--muted);margin:14px 0 0">Your <span class="inlinecode">&lt;team&gt;.csv</span> must have exactly two columns — <span class="inlinecode">clip_id,predicted_emotion</span> — one row per clip:</p>
+    <pre class="code">clip_id,predicted_emotion
+clip_000001,anger
+clip_000002,happy
+clip_000003,neutral</pre>
+    <p style="font-size:14.5px;color:var(--muted);margin:8px 0 0">Valid labels: <span class="inlinecode">anger</span>, <span class="inlinecode">disgust</span>, <span class="inlinecode">fear</span>, <span class="inlinecode">happy</span>, <span class="inlinecode">neutral</span>, <span class="inlinecode">sad</span>.</p>
     <h3 class="sub">Recorded presentation</h3>
     <p class="lead-max">Record a <b>15–20 minute</b> presentation on your approach, experiments, and results using <b>CarmenZoom</b>. Every team member must present. Share the recording link with the instructor via MS Teams by the deadline, and upload <span class="inlinecode">slides.pdf</span> to Canvas — one submission per group.</p>
     <ol class="steps">
@@ -592,10 +600,11 @@
     const el=document.getElementById(id); if(el) el.href=LINKS[key];
   }
   const emoWrap=document.getElementById("emotions");
-  for (const [name,c] of Object.entries(EMOTION_COLORS)){
+  Object.entries(EMOTION_COLORS).forEach(([name,c],i)=>{
     const s=document.createElement("span"); s.className="emotion";
-    s.innerHTML=`<i style="background:${c}"></i>${name}`; emoWrap.appendChild(s);
-  }
+    s.innerHTML=`<i style="background:${c}"></i><b style="font-family:var(--mono);color:var(--muted);font-weight:600">${i}</b> ${name}`;
+    emoWrap.appendChild(s);
+  });
 
   // theme toggle (per-viewer convenience only)
   const root=document.documentElement, tbtn=document.getElementById("themeBtn");
