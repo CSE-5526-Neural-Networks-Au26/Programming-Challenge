@@ -3,8 +3,8 @@
 <style>
   /* Layout: single centered column with full-bleed scarlet header band; OSU scarlet accent on a cool-gray neutral. */
   :root{
-    --bg:#f6f6f7; --surface:#ffffff; --surface-2:#f0f0f2;
-    --fg:#17171a; --muted:#64646b; --border:#e4e4e9;
+    --bg:#e8eaef; --surface:#ffffff; --surface-2:#f0f1f5;
+    --fg:#17171a; --muted:#64646b; --border:#d8dbe2;
     --accent:#bb0000; --accent-ink:#8f0000; --accent-weak:#f7e7e7;
     --on-accent:#ffffff;
     --pos:#0a7d4d; --pos-weak:#e7f4ec;
@@ -131,7 +131,7 @@
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .grid2.top{align-items:start}
   @media(max-width:640px){.grid2{grid-template-columns:1fr}}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px;min-width:0}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px;min-width:0;box-shadow:0 1px 3px rgba(16,16,20,.05)}
   .grid2>*{min-width:0}
   pre.code{max-width:100%}
   pre.code.wrap{white-space:pre-wrap;word-break:break-word}
@@ -142,11 +142,12 @@
   ul.clean{margin:0;padding-left:20px}
   ul.clean li{margin:5px 0}
   .sub{font-family:var(--display);font-size:16px;font-weight:700;margin:24px 0 8px}
-  .tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:13px;margin:6px 0}
+  .tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:13px;margin:10px 0;box-shadow:0 1px 3px rgba(16,16,20,.06)}
   table.data th.n{text-align:right}
 
   table.data{width:100%;border-collapse:collapse;font-size:15px;margin-top:4px}
   table.data th,table.data td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--border)}
+  table.data tbody tr:last-child td{border-bottom:0}
   table.data thead th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;background:var(--surface-2)}
   table.data tbody tr:last-child td{border-bottom:0}
   table.data tbody tr:hover td{background:color-mix(in srgb,var(--accent) 5%,transparent)}
@@ -522,12 +523,12 @@ clip_000003,neutral</pre>
   <section id="policies">
     <h2><span class="num">09</span> Rules &amp; Policies</h2>
     <h3 class="sub">Academic integrity</h3>
-    <ul class="clean">
+    <div class="card"><ul class="clean">
       <li>All code must be written by your team.</li>
       <li>You may consult papers, documentation, and blogs to learn — but do not copy code.</li>
       <li>Sharing code, models, or predictions between teams is not permitted.</li>
       <li>No pre-trained models and no external data.</li>
-    </ul>
+    </ul></div>
     <div class="warnbox"><span class="ico">!</span><div>Violations result in a zero for the assignment and may be referred to the university academic conduct process.</div></div>
     <h3 class="sub">Late submissions</h3>
     <p class="lead-max">All files for the final submission and presentation must be submitted on time. <b>Late submissions will not be graded.</b> Extensions will not be granted for unexcused reasons.</p>
