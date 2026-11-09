@@ -223,7 +223,7 @@
       <span class="chip"><b>Due</b>&nbsp;TBD</span>
       <span class="chip"><b>Teams of</b>&nbsp;2–3</span>
       <span class="chip"><b>Baseline F1</b>&nbsp;0.4276</span>
-      <a class="chip link" id="chipChallenge" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Challenge repo</a>
+      <a class="chip link" id="chipBaseline" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Baseline code</a>
       <a class="chip link" id="chipData" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Dataset</a>
     </div>
   </div>
@@ -286,6 +286,7 @@
   <section id="dataset">
     <h2><span class="num">03</span> Dataset</h2>
     <p class="lead-max">Download, unzip, and place <span class="inlinecode">dataset/</span> next to your code. Each labels CSV has two columns: <span class="inlinecode">clip_id</span> and <span class="inlinecode">emotion</span>.</p>
+    <div class="chips" style="margin-bottom:16px"><a class="chip link" id="chipData3" href="#" target="_blank" rel="noopener"><span class="ico">⬇</span> Download dataset (.zip)</a></div>
     <table class="data">
       <thead><tr><th>Split</th><th class="n">Clips</th><th>Labels</th></tr></thead>
       <tbody>
@@ -294,12 +295,15 @@
         <tr><td>Hidden test</td><td class="n">~1,050</td><td>Withheld — used for final grading</td></tr>
       </tbody>
     </table>
+    <h3 class="sub">Emotion classes</h3>
+    <p style="font-size:14.5px;color:var(--muted);margin:0 0 10px">The model outputs one of six classes (index → label):</p>
     <div class="emotions" id="emotions"></div>
   </section>
 
   <section id="baseline">
     <h2><span class="num">04</span> Baseline</h2>
     <p class="lead-max">A deliberately simple 2-layer LSTM on 64-bin Mel-spectrograms. It scores <b>weighted F1 = 0.4276</b> on the public test set — well above the ~0.167 chance level for six classes, with plenty of room to improve.</p>
+    <div class="chips" style="margin-bottom:16px"><a class="chip link" id="chipBaseline3" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Baseline code repo</a></div>
     <div class="grid2">
       <div class="card"><h3>Model</h3><dl class="deflist">
         <dt>Input</dt><dd>64-bin Mel-spec (25ms / 10ms)</dd>
@@ -402,6 +406,12 @@
         <tr><td><span class="inlinecode">README.md</span></td><td>How to run <span class="inlinecode">test.py</span></td></tr>
       </tbody>
     </table></div>
+    <p style="font-size:14.5px;color:var(--muted);margin:14px 0 0">Your <span class="inlinecode">&lt;team&gt;.csv</span> must have exactly two columns — <span class="inlinecode">clip_id,predicted_emotion</span> — one row per clip:</p>
+    <pre class="code">clip_id,predicted_emotion
+clip_000001,anger
+clip_000002,happy
+clip_000003,neutral</pre>
+    <p style="font-size:14.5px;color:var(--muted);margin:8px 0 0">Valid labels: <span class="inlinecode">anger</span>, <span class="inlinecode">disgust</span>, <span class="inlinecode">fear</span>, <span class="inlinecode">happy</span>, <span class="inlinecode">neutral</span>, <span class="inlinecode">sad</span>.</p>
     <h3 class="sub">Recorded presentation</h3>
     <p class="lead-max">Record a <b>15–20 minute</b> presentation on your approach, experiments, and results using <b>CarmenZoom</b>. Every team member must present. Share the recording link with the instructor via MS Teams by the deadline, and upload <span class="inlinecode">slides.pdf</span> to Canvas — one submission per group.</p>
     <ol class="steps">
@@ -518,8 +528,7 @@
   <section id="resources">
     <h2><span class="num">10</span> Resources</h2>
     <div class="chips">
-      <a class="chip link" id="chipChallenge2" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Shell code &amp; baseline</a>
-      <a class="chip link" id="chipLb" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Submissions folder</a>
+      <a class="chip link" id="chipBaseline2" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Baseline code</a>
       <a class="chip link" id="chipData2" href="#" target="_blank" rel="noopener"><span class="ico">↗</span> Download dataset</a>
     </div>
     <h3 class="sub">Suggested reading</h3>
@@ -576,8 +585,7 @@
 
   // Links used by the chips. Edit these to match your org/repos.
   const LINKS = {
-    challenge: "https://github.com/CSE-5526-Neural-Networks-Au26/Programming-Challenge",
-    leaderboard: "https://github.com/CSE-5526-Neural-Networks-Au26/Programming-Challenge/tree/main/submissions",
+    baseline: "https://github.com/CSE-5526-Neural-Networks-Au26/Baseline-Speech-Emotion-Recognition-Challenge",
     dataset: "https://buckeyemailosu-my.sharepoint.com/:u:/g/personal/hassan_491_osu_edu/IQBtTHfYR2Z6Q7W5DOobyAP_AbPWYsrzLCSbQDYmlyoft_I?e=tO5vze"
   };
 
@@ -587,15 +595,16 @@
   };
 
   /* ---- wiring --------------------------------------------------------- */
-  for (const [id,key] of [["chipChallenge","challenge"],["chipChallenge2","challenge"],
-      ["chipData","dataset"],["chipData2","dataset"],["chipLb","leaderboard"]]){
+  for (const [id,key] of [["chipBaseline","baseline"],["chipBaseline2","baseline"],["chipBaseline3","baseline"],
+      ["chipData","dataset"],["chipData2","dataset"],["chipData3","dataset"]]){
     const el=document.getElementById(id); if(el) el.href=LINKS[key];
   }
   const emoWrap=document.getElementById("emotions");
-  for (const [name,c] of Object.entries(EMOTION_COLORS)){
+  Object.entries(EMOTION_COLORS).forEach(([name,c],i)=>{
     const s=document.createElement("span"); s.className="emotion";
-    s.innerHTML=`<i style="background:${c}"></i>${name}`; emoWrap.appendChild(s);
-  }
+    s.innerHTML=`<i style="background:${c}"></i><b style="font-family:var(--mono);color:var(--muted);font-weight:600">${i}</b> ${name}`;
+    emoWrap.appendChild(s);
+  });
 
   // theme toggle (per-viewer convenience only)
   const root=document.documentElement, tbtn=document.getElementById("themeBtn");
